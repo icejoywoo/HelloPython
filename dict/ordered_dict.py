@@ -17,13 +17,3 @@ print "Methods:", dir(ordered_dict)
 
 for k, v in ordered_dict.viewitems():
     print k, v
-
-#################################################
-a = "a 1\nb 2\nc 3"
-d = dict([i.split(' ') for i in a.split('\n')])
-print d
-
-#################################################
-a = "a b c\n1 2 3"
-d = dict(zip(*[i.split(' ') for i in a.split('\n')]))
-print d
