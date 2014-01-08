@@ -32,10 +32,10 @@ with case():
         def __iter__(self):
             while True:
                 if not self.end or (self.end and self.index < self.end):
-                    yield self.index
+                    yield self.index, self.index + 1
                 else:
                     return
-                self.index += 1
+                self.index += 2
             else:
                 return
 
@@ -43,8 +43,6 @@ with case():
     print [i for i in t(10, 20)]
 
     i = iter(t(0, 4))
-    print i.next()
-    print i.next()
     print i.next()
     print i.next()
 
