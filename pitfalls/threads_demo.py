@@ -7,10 +7,9 @@ __author__ = 'wujiabin'
 import threading
 import time
 
-
 def test_func(id):
     time.sleep(1)
-    print('thread %d is running \n' % id)
+    print('thread %d is running\n' % id)
 
 
 threads = [threading.Thread(target=test_func, args=(i,)) for i in range(5)]
