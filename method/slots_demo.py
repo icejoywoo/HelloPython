@@ -17,7 +17,7 @@ class Person(object):
 if __name__ == "__main__":
     class NoSlots(object):
         pass
-    n = NoSlots
+    n = NoSlots()
     class WithSlots(object):
         __slots__ = 'a', 'b', 'c'
     w = WithSlots()
