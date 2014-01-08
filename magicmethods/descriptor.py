@@ -4,7 +4,8 @@
 
 __author__ = 'icejoywoo'
 
-
+# http://onlypython.group.iteye.com/group/wiki/1362-python-39-s-descriptor
+#
 class Meter(object):
     '''Descriptor for a meter.'''
 
@@ -33,7 +34,6 @@ class Distance(object):
     meters.'''
     meter = Meter()
     foot = Foot()
-
 
 if __name__ == "__main__":
     d = Distance()
