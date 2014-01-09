@@ -47,6 +47,19 @@ with case():
     print i.next()
 
 with case():
+    class MyFib(object):
+     def __init__(self):
+        self.i = 2
+     def __iter__(self):
+        return self
+     def next(self):
+         if self.i > 1000:
+            raise StopIteration
+         self.i = self.i * self.i
+         return self.i
+
+    print [x for x in MyFib()]
+
     ''' Fibonacci '''
     class fib(object):
         def __init__(self, count=10):
@@ -83,6 +96,6 @@ with case():
             if isPrime(i):
                 yield i
 
-    for i in prime(100000):
+    for i in prime(100):
         print i
         #time.sleep(0.1)
