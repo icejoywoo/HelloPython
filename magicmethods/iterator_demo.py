@@ -48,7 +48,6 @@ with case():
 
 with case():
     ''' Fibonacci '''
-
     class fib(object):
         def __init__(self, count=10):
             self.i = 1
@@ -64,12 +63,26 @@ with case():
     print [i for i in fib(10)]
 
 with case():
-    def gen():
-        index = 0
+    # similar with itertools.count
+    def gen(start=0):
+        index = start
         while True:
             yield index
             index += 1
 
-    for i in gen():
+    def isPrime(n):
+        for i in range(2,int(n**0.5)+1):
+            if n % i == 0:
+                return False
+        return True
+
+    def prime(end=None):
+        for i in gen(1):
+            if end and i > end:
+                return
+            if isPrime(i):
+                yield i
+
+    for i in prime(100000):
         print i
-        time.sleep(0.1)
+        #time.sleep(0.1)
