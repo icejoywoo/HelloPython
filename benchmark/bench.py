@@ -53,7 +53,7 @@ class Brake(object):
     def __init__(self):
         pass
 
-    def need_brake(self):
+    def __call__(self, *args, **kwargs):
         pass
 
 
@@ -65,16 +65,24 @@ class Task(object):
         # 方法参数
         self.kvargs = kvargs
 
-    def process(self):
+    def process(self, manager):
         ''' 处理流程, 包含传来的func, 在前后做统计
         '''
-        pass
+        start_time = time.time()
+        if not self.kvargs:
+            result = self.func()
+        else:
+            result = self.func(**self.kvargs)
+        lantency = time.time() - start_time
+        is_success = True if result else False
+        manager.record.add(time.time(), is_success, lantency)
+        self.nextTime = time.time() + self.interval
 
     def __str__(self):
         return "Task {iterval: %f, nextTime: %f}" % (self.interval, self.nextTime)
 
 
-class Timer(threading.Thread):
+class Manager(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.tasks = []
@@ -87,21 +95,10 @@ class Timer(threading.Thread):
         while self.is_alive():
             tasks = [task for task in self.tasks if task.nextTime <= time.time()]
             for task in tasks:
-                start_time = time.time()
-                if not task.kvargs:
-                    result = task.func()
-                else:
-                    result = task.func(**task.kvargs)
-                lantency = time.time() - start_time
-                is_success = True if result else False
-                self.record.add(time.time(), is_success, lantency)
-                task.nextTime = time.time() + task.interval
+                assert isinstance(task, object)
+                task.process(self)
                 # print task, task.nextTime - time.time()
             time.sleep(max(min([task.nextTime for task in self.tasks]) - time.time(), 0.01))
-
-
-class Manager(object):
-    pass
 
 
 if __name__ == "__main__":
@@ -125,9 +122,9 @@ if __name__ == "__main__":
                 count += 1
             #time.sleep(random.random()/100)
 
-    timer = Timer()
-    timer.add_task(1, test, a=1, b=2)
+    manager = Manager()
+    manager.add_task(1, test, a=1, b=2)
     #     timer.add_task(0.1, test)
-    timer.start()
+    manager.start()
     thread.start_new_thread(counter, ())
-    timer.join()
+    manager.join()
