@@ -112,7 +112,7 @@ class Timer(object):
         if self.verbose:
             print 'elapsed time: %f ms' % self.msecs
 
-# 极限在2000 qps左右, 可能是queue的锁比较重
+# 极限在20000 qps左右, 可能是queue的锁比较重
 with Timer(True):
     b = Benchmark(data_loader, worker, **config)
     b.run()
