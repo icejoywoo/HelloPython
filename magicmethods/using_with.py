@@ -4,6 +4,7 @@
 
 __author__ = 'icejoywoo'
 
+# http://www.python.org/dev/peps/pep-0343/
 
 class Closer:
     '''A context manager to automatically close an object with a close method
