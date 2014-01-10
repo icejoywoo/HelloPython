@@ -45,12 +45,12 @@ class Benchmark(object):
         self.all_threads = []
 
     def run(self):
-        data_loader_thread = threading.Thread(target=self.data_loader, args=(self.queue, self.reporter, self.kvargs))
+        data_loader_thread = threading.Thread(target=self.data_loader, args=(self.queue, self, self.kvargs))
         data_loader_thread.setDaemon(True)
         data_loader_thread.start()
         self.all_threads.append(data_loader_thread)
 
-        worker_threads = [threading.Thread(target=self.worker, args=(self.queue, self.reporter, self.kvargs)) for _ in
+        worker_threads = [threading.Thread(target=self.worker, args=(self.queue, self, self.kvargs)) for _ in
                           xrange(self.worker_num)]
         [(t.setDaemon(True), t.start()) for t in worker_threads]
         self.all_threads += worker_threads
@@ -65,13 +65,13 @@ class Benchmark(object):
         is_running = False
 
 
-def data_loader(queue, reporter, kvargs):
+def data_loader(queue, bench, kvargs):
     start = time.time()
     count = 0
     while is_running:
         for i in file(kvargs["data_file"]):
             if time.time() - start < 1.0 and count < kvargs["max_qps"]:
-                while queue.qsize() > 100:
+                while queue.qsize() > 200:
                     # print "qsize: %d" % queue.qsize()
                     time.sleep(0.000001)
                 queue.put(i.lstrip("\n"))
@@ -79,29 +79,32 @@ def data_loader(queue, reporter, kvargs):
             else:
                 if (time.time() - start) * 1000 < 1000:
                     time.sleep(1.0 - (time.time() - start))
-                print "======", (time.time() - start), count
+                timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                latencys = [i[1] for i in bench.reporter]
+                print "[%s] qps: %d\tmax_latency: %d\tmin_latency: %d\tavg_latency: %d" \
+                      % (timestamp, count, max(latencys), min(latencys), sum(latencys) / len(latencys))
+                bench.reporter = []
                 count = 0
                 start = time.time()
 
 
-def worker(queue, reporter, kvargs):
+def worker(queue, bench, kvargs):
     import redis
-
     r = redis.Redis(host='localhost', port=6379, db=0)
     while is_running:
-        start = time.time()
         task = queue.get()
+        start = time.time()
         r.set("name %s" % task, "value %s" % task)
         # time.sleep(random.randrange(0, 5) / 1000)
         queue.task_done()
-        latency = (time.time() - start) * 1000  # ms
-        reporter.append((start, latency))
+        latency = (time.time() - start) * 1000000  # ns
+        bench.reporter.append((start, latency))
 
 
 config = {
-    "worker_num": 50,
+    "worker_num": 20,
     "data_file": "test",
-    "max_qps": 100000,
+    "max_qps": 20000,
 }
 
 
