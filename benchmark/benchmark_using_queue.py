@@ -36,6 +36,7 @@ class Benchmark(object):
 
         self.data_loader = data_loader
         self.kvargs = kvargs
+        self.data_loader_num = kvargs.get("data_loader_num", 1)
 
         self.worker = worker
         self.worker_num = kvargs.get("worker_num", 10)
@@ -54,6 +55,7 @@ class Benchmark(object):
         [(t.setDaemon(True), t.start()) for t in worker_threads]
         self.all_threads += worker_threads
 
+        # join会导致主线程hang住, 无法接受信号
         # [t.join() for t in self.all_threads]
 
     def stop(self):
@@ -77,17 +79,23 @@ def data_loader(queue, reporter, kvargs):
             else:
                 if (time.time() - start) * 1000 < 1000:
                     time.sleep(1.0 - (time.time() - start))
-                print "=======", time.time() - start, count
+                print "======", (time.time() - start), count
                 count = 0
                 start = time.time()
 
 
 def worker(queue, reporter, kvargs):
+    import redis
+
+    r = redis.Redis(host='localhost', port=6379, db=0)
     while is_running:
+        start = time.time()
         task = queue.get()
-        assert isinstance(task, str)
+        r.set("name %s" % task, "value %s" % task)
         # time.sleep(random.randrange(0, 5) / 1000)
         queue.task_done()
+        latency = (time.time() - start) * 1000  # ms
+        reporter.append((start, latency))
 
 
 config = {

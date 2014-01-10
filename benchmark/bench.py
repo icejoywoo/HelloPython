@@ -119,9 +119,13 @@ if __name__ == "__main__":
             count = 0
 
     def counter():
+        import redis
+
+        r = redis.Redis(host='localhost', port=6379, db=0)
         while True:
             global count
             with lock:
+                r.set("name %s" % count, "value %s" % count)
                 count += 1
                 #time.sleep(random.random()/100)
 
