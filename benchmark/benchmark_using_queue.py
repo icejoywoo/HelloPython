@@ -5,7 +5,6 @@
 __author__ = 'icejoywoo'
 
 import Queue
-import random
 import signal
 import threading
 import time
@@ -60,6 +59,8 @@ class Benchmark(object):
     def stop(self):
         for t in self.all_threads:
             t.kill_received = True
+        global is_running
+        is_running = False
 
 
 def data_loader(queue, reporter, kvargs):
@@ -69,7 +70,7 @@ def data_loader(queue, reporter, kvargs):
         for i in file(kvargs["data_file"]):
             if time.time() - start < 1.0 and count < kvargs["max_qps"]:
                 while queue.qsize() > 100:
-                    print "qsize: %d" % queue.qsize()
+                    # print "qsize: %d" % queue.qsize()
                     time.sleep(0.000001)
                 queue.put(i.lstrip("\n"))
                 count += 1
@@ -85,7 +86,7 @@ def worker(queue, reporter, kvargs):
     while is_running:
         task = queue.get()
         assert isinstance(task, str)
-        #time.sleep(random.randrange(0, 5) / 1000)
+        # time.sleep(random.randrange(0, 5) / 1000)
         queue.task_done()
 
 
@@ -115,5 +116,5 @@ class Timer(object):
 with Timer(True):
     b = Benchmark(data_loader, worker, **config)
     b.run()
-    while True:
+    while is_running:
         time.sleep(1)

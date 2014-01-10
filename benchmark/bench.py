@@ -11,8 +11,8 @@ class Record(object):
     def __init__(self, buckets=(0, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500, 1000, 1500, 2000)):
         self.schema = ("timestamp", "is_success", "latency")
         self.data = []
-        self.report = {"fail": {"count": 0, "latency": []},
-                       "succ": {"count": 0, "latency": []}}
+        self.report_data = {"fail": {"count": 0, "latency": []},
+                            "succ": {"count": 0, "latency": []}}
         self.lock = threading.Lock()
 
         self.buckets = []
@@ -30,18 +30,18 @@ class Record(object):
             bucket = [bucket for bucket in self.buckets if bucket[0] <= lantency <= bucket[1]][0]
             self.buckets_counter[bucket] += 1
             key = "succ" if is_success else "fail"
-            self.report[key]["count"] += 1
-            self.report[key]["latency"].append(lantency)
+            self.report_data[key]["count"] += 1
+            self.report_data[key]["latency"].append(lantency)
 
     def report(self, clear=True):
         result = {}
         for key in ("fail", "succ"):
-            lantencys = self.report[key]["lantency"]
+            lantencys = self.report_data[key]["lantency"]
             result[key] = {"min_lantency": min(lantencys), "max_lantency": max(lantencys),
                            "avg_lantency": sum(lantencys) / len(lantencys)}
             # clear the lantency
             if clear:
-                self.report[key]["lantency"] = []
+                self.report_data[key]["lantency"] = []
         return result
 
     # TODO
@@ -87,6 +87,7 @@ class Manager(threading.Thread):
         threading.Thread.__init__(self)
         self.tasks = []
         self.record = Record()
+        # self.add_task(1, self.report)
 
     def add_task(self, interval, func, **kvargs):
         self.tasks.append(Task(interval, func, **kvargs))
@@ -100,9 +101,11 @@ class Manager(threading.Thread):
                 # print task, task.nextTime - time.time()
             time.sleep(max(min([task.nextTime for task in self.tasks]) - time.time(), 0.01))
 
+    def report(self):
+        print self.record.report()
+
 
 if __name__ == "__main__":
-    import random
     import thread
 
     lock = threading.Lock()
@@ -120,11 +123,11 @@ if __name__ == "__main__":
             global count
             with lock:
                 count += 1
-            #time.sleep(random.random()/100)
+                #time.sleep(random.random()/100)
 
     manager = Manager()
     manager.add_task(1, test, a=1, b=2)
-    #     timer.add_task(0.1, test)
+    # manager.add_task(0.1, test)
     manager.start()
     thread.start_new_thread(counter, ())
     manager.join()
