@@ -24,8 +24,11 @@ def signal_handler(signum, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
-# 忽略SIGPIPE
-signal.signal(signal.SIGPIPE, signal.SIG_IGN)
+try:
+    # 忽略SIGPIPE
+    signal.signal(signal.SIGPIPE, signal.SIG_IGN)
+except:
+    pass
 
 
 class Benchmark(object):
@@ -108,7 +111,7 @@ class Timer(object):
         if self.verbose:
             print 'elapsed time: %f ms' % self.msecs
 
-
+# 极限在2000 qps左右, 可能是queue的锁比较重
 with Timer(True):
     b = Benchmark(data_loader, worker, **config)
     b.run()
