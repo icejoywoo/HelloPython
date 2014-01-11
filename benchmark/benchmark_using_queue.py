@@ -60,8 +60,8 @@ class Benchmark(object):
         tickets_count = self.kvargs["max_qps"]
         while is_running:
             if (time.time() - start) * 1000 < 1000 and tickets_count > 0:
-                self.tickets.put(50)
-                tickets_count -= 50
+                self.tickets.put(10)
+                tickets_count -= 10
             else:
                 tickets_count = self.kvargs["max_qps"]
                 if (time.time() - start) * 1000 < 1000:
@@ -97,7 +97,8 @@ def worker(bench, kvargs):
         count = bench.tickets.get()
         for _ in xrange(count):
             start = time.time()
-            ret = r.set("name %s" % task, "value %s" % task)
+            # ret = r.set("name %s" % task, "value %s" % task)
+            ret = 0
             latency = (time.time() - start) * 1000000  # ns
             bench.reporter.append((start, latency, ret))
             task += 1
@@ -105,11 +106,12 @@ def worker(bench, kvargs):
 
 
 config = {
-    "worker_num": 20,
-    "max_qps": 10000,
+    "worker_num": 1,
+    "max_qps": 100000,
 }
 
 
+# timer 可以在退出的时候打报告什么的
 class Timer(object):
     def __init__(self, verbose=False):
         self.verbose = verbose
