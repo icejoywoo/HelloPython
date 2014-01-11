@@ -57,13 +57,13 @@ class Benchmark(object):
         # join会导致主线程hang住, 无法接受信号
         # [t.join() for t in self.all_threads]
         start = time.time()
-        tickets_count = 0
+        tickets_count = self.kvargs["max_qps"]
         while is_running:
-            if (time.time() - start) * 1000 < 1000 and tickets_count < self.kvargs["max_qps"]:
-                self.tickets.put(1)
-                tickets_count += 1
+            if (time.time() - start) * 1000 < 1000 and tickets_count > 0:
+                self.tickets.put(50)
+                tickets_count -= 50
             else:
-                tickets_count = 0
+                tickets_count = self.kvargs["max_qps"]
                 if (time.time() - start) * 1000 < 1000:
                     time.sleep(1.0 - (time.time() - start))
                 start = time.time()
@@ -94,17 +94,18 @@ def worker(bench, kvargs):
     r = redis.Redis(host='localhost', port=6379, db=0)
     task = 0
     while is_running:
-        bench.tickets.get()
-        start = time.time()
-        ret = r.set("name %s" % task, "value %s" % task)
-        latency = (time.time() - start) * 1000000  # ns
-        bench.reporter.append((start, latency, ret))
-        task += 1
+        count = bench.tickets.get()
+        for _ in xrange(count):
+            start = time.time()
+            ret = r.set("name %s" % task, "value %s" % task)
+            latency = (time.time() - start) * 1000000  # ns
+            bench.reporter.append((start, latency, ret))
+            task += 1
         bench.tickets.task_done()
 
 
 config = {
-    "worker_num": 1,
+    "worker_num": 20,
     "max_qps": 10000,
 }
 
