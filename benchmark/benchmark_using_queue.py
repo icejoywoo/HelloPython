@@ -4,7 +4,6 @@
 
 __author__ = 'icejoywoo'
 
-import Queue
 import signal
 import threading
 import time
@@ -18,7 +17,6 @@ def signal_handler(signum, frame):
     """
     global is_running
     is_running = False
-    b.summary()
     return
 
 
@@ -32,12 +30,8 @@ except:
 
 
 class Benchmark(object):
-    def __init__(self, data_loader, worker, **kvargs):
-        self.queue = Queue.Queue()
-
-        self.data_loader = data_loader
+    def __init__(self, worker, **kvargs):
         self.kvargs = kvargs
-        self.data_loader_num = kvargs.get("data_loader_num", 1)
 
         self.worker = worker
         self.worker_num = kvargs.get("worker_num", 10)
@@ -47,12 +41,7 @@ class Benchmark(object):
         self.all_threads = []
 
     def run(self):
-        data_loader_thread = threading.Thread(target=self.data_loader, args=(self.queue, self, self.kvargs))
-        data_loader_thread.setDaemon(True)
-        data_loader_thread.start()
-        self.all_threads.append(data_loader_thread)
-
-        worker_threads = [threading.Thread(target=self.worker, args=(self.queue, self, self.kvargs)) for _ in
+        worker_threads = [threading.Thread(target=self.worker, args=(self, self.kvargs)) for _ in
                           xrange(self.worker_num)]
         [(t.setDaemon(True), t.start()) for t in worker_threads]
         self.all_threads += worker_threads
@@ -62,8 +51,18 @@ class Benchmark(object):
         self.run()
         # join会导致主线程hang住, 无法接受信号
         # [t.join() for t in self.all_threads]
+        start = time.time()
         while is_running:
-            time.sleep(1)
+            if time.time() - start < 1.0:
+                time.sleep(1.0 - (time.time() - start))
+            if self.reporter:
+                timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                latencys = [i[1] for i in self.reporter]
+                print "[%s] qps: %d\tmax_latency: %d\tmin_latency: %d\tavg_latency: %d" \
+                      % (timestamp, len(self.reporter), max(latencys), min(latencys), sum(latencys) / len(latencys))
+                self.total_reporter += self.reporter
+                self.reporter = []
+        self.summary()
 
     def stop(self):
         for t in self.all_threads:
@@ -78,47 +77,23 @@ class Benchmark(object):
               % (sum(latencys), sum(latencys) / len(latencys))
 
 
-def data_loader(queue, bench, kvargs):
-    start = time.time()
-    count = 0
-    while is_running:
-        for i in file(kvargs["data_file"]):
-            if time.time() - start < 1.0 and count < kvargs["max_qps"]:
-                while queue.qsize() > 200:
-                    # print "qsize: %d" % queue.qsize()
-                    time.sleep(0.000001)
-                queue.put(i.lstrip("\n"))
-                count += 1
-            else:
-                if (time.time() - start) * 1000 < 1000:
-                    time.sleep(1.0 - (time.time() - start))
-                timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                latencys = [i[1] for i in bench.reporter]
-                print "[%s] qps: %d\tmax_latency: %d\tmin_latency: %d\tavg_latency: %d" \
-                      % (timestamp, count, max(latencys), min(latencys), sum(latencys) / len(latencys))
-                bench.total_reporter += bench.reporter
-                bench.reporter = []
-                count = 0
-                start = time.time()
-
-
-def worker(queue, bench, kvargs):
+def worker(bench, kvargs):
     import redis
     r = redis.Redis(host='localhost', port=6379, db=0)
+    task = 0
     while is_running:
-        task = queue.get()
         start = time.time()
         r.set("name %s" % task, "value %s" % task)
         # time.sleep(random.randrange(0, 5) / 1000)
-        queue.task_done()
         latency = (time.time() - start) * 1000000  # ns
         bench.reporter.append((start, latency))
+        task += 1
 
 
 config = {
-    "worker_num": 20,
+    "worker_num": 100,
     "data_file": "test",
-    "max_qps": 20000,
+    "max_qps": 10000,
 }
 
 
@@ -139,5 +114,5 @@ class Timer(object):
 
 # 极限在20000 qps左右, 可能是queue的锁比较重
 with Timer(True):
-    b = Benchmark(data_loader, worker, **config)
+    b = Benchmark(worker, **config)
     b.loop()
