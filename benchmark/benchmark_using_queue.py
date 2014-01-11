@@ -18,6 +18,7 @@ def signal_handler(signum, frame):
     """
     global is_running
     is_running = False
+    b.summary()
     return
 
 
@@ -41,6 +42,7 @@ class Benchmark(object):
         self.worker = worker
         self.worker_num = kvargs.get("worker_num", 10)
 
+        self.total_reporter = []
         self.reporter = []
         self.all_threads = []
 
@@ -55,14 +57,25 @@ class Benchmark(object):
         [(t.setDaemon(True), t.start()) for t in worker_threads]
         self.all_threads += worker_threads
 
+
+    def loop(self):
+        self.run()
         # join会导致主线程hang住, 无法接受信号
         # [t.join() for t in self.all_threads]
+        while is_running:
+            time.sleep(1)
 
     def stop(self):
         for t in self.all_threads:
             t.kill_received = True
         global is_running
         is_running = False
+
+    def summary(self):
+        # summary
+        latencys = [i[1] for i in self.total_reporter]
+        print "operation count: %d\tavg_latency: %d" \
+              % (sum(latencys), sum(latencys) / len(latencys))
 
 
 def data_loader(queue, bench, kvargs):
@@ -83,6 +96,7 @@ def data_loader(queue, bench, kvargs):
                 latencys = [i[1] for i in bench.reporter]
                 print "[%s] qps: %d\tmax_latency: %d\tmin_latency: %d\tavg_latency: %d" \
                       % (timestamp, count, max(latencys), min(latencys), sum(latencys) / len(latencys))
+                bench.total_reporter += bench.reporter
                 bench.reporter = []
                 count = 0
                 start = time.time()
@@ -126,6 +140,4 @@ class Timer(object):
 # 极限在20000 qps左右, 可能是queue的锁比较重
 with Timer(True):
     b = Benchmark(data_loader, worker, **config)
-    b.run()
-    while is_running:
-        time.sleep(1)
+    b.loop()
