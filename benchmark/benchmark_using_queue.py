@@ -32,6 +32,7 @@ except:
 
 class Benchmark(object):
     def __init__(self, worker, **kvargs):
+        # 用queue做tickets来做速度控制
         self.tickets = Queue.Queue()
         self.kvargs = kvargs
 
@@ -48,10 +49,6 @@ class Benchmark(object):
         [(t.setDaemon(True), t.start()) for t in worker_threads]
         self.all_threads += worker_threads
 
-    @property
-    def count(self):
-        return len(self.reporter)
-
     def loop(self):
         self.run()
         # join会导致主线程hang住, 无法接受信号
@@ -60,8 +57,8 @@ class Benchmark(object):
         tickets_count = self.kvargs["max_qps"]
         while is_running:
             if (time.time() - start) * 1000 < 1000 and tickets_count > 0:
-                self.tickets.put(10)
-                tickets_count -= 10
+                self.tickets.put(self.kvargs["step"])
+                tickets_count -= self.kvargs["step"]
             else:
                 tickets_count = self.kvargs["max_qps"]
                 if (time.time() - start) * 1000 < 1000:
@@ -69,9 +66,10 @@ class Benchmark(object):
                 start = time.time()
                 if self.reporter:
                     timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                    latencys = [i[1] for i in self.reporter]
+                    latencies = [i[1] for i in self.reporter]
                     print "[%s] qps: %d\tmax_latency: %d\tmin_latency: %d\tavg_latency: %d" \
-                          % (timestamp, len(self.reporter), max(latencys), min(latencys), sum(latencys) / len(latencys))
+                          % (
+                    timestamp, len(self.reporter), max(latencies), min(latencies), sum(latencies) / len(latencies))
                     self.total_reporter += self.reporter
                     self.reporter = []
         self.summary()
@@ -84,20 +82,17 @@ class Benchmark(object):
 
     def summary(self):
         # summary
-        latencys = [i[1] for i in self.total_reporter]
+        latencies = [i[1] for i in self.total_reporter]
         print "operation count: %d\tavg_latency: %d" \
-              % (len(latencys), sum(latencys) / len(latencys))
+              % (len(latencies), sum(latencies) / len(latencies))
 
 
 def worker(bench, kvargs):
-    import redis
-    r = redis.Redis(host='localhost', port=6379, db=0)
     task = 0
     while is_running:
         count = bench.tickets.get()
         for _ in xrange(count):
             start = time.time()
-            # ret = r.set("name %s" % task, "value %s" % task)
             ret = 0
             latency = (time.time() - start) * 1000000  # ns
             bench.reporter.append((start, latency, ret))
@@ -106,8 +101,9 @@ def worker(bench, kvargs):
 
 
 config = {
-    "worker_num": 1,
+    "worker_num": 10,
     "max_qps": 100000,
+    "step": 100, # step 越小 qps控制得越好
 }
 
 
@@ -127,7 +123,7 @@ class Timer(object):
         if self.verbose:
             print 'elapsed time: %f ms' % self.msecs
 
-# 极限在20000 qps左右, 可能是queue的锁比较重
+
 with Timer(True):
     b = Benchmark(worker, **config)
     b.loop()
