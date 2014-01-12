@@ -58,4 +58,4 @@ class RequestChannel(asynchat.async_chat):
 
 
 Server('localhost', 8080)
-asyncore.loop()
+asyncore.loop(timeout=5, use_poll=True)

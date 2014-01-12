@@ -31,8 +31,7 @@ class ClientHandler(asynchat.async_chat):
         self.del_channel()
 
 
-client_info = {}
 response = []
-ClientHandler("localhost", 8080, "time\r\n", response, map=client_info)
-asyncore.loop(timeout=1, use_poll=True, map=client_info)
+ClientHandler("localhost", 8080, "time\r\n", response)
+asyncore.loop(timeout=1, use_poll=True, count=5)
 print response
