@@ -12,6 +12,7 @@ class Server(asyncore.dispatcher):
     def __init__(self, host='', port=5007):
         asyncore.dispatcher.__init__(self)
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.set_reuse_addr()
         self.bind((host, port))
         self.listen(100)
 
@@ -27,11 +28,16 @@ class EchoHandler(asyncore.dispatcher_with_send):
     # dispatcher_with_send extends the basic dispatcher to have an output
     # buffer that it writes whenever there's content
     def handle_read(self):
-        self.out_buffer = self.recv(1024)
-        print self.out_buffer
+        self.in_buffer = self.recv(1024)
+        if self.in_buffer == "time":
+            import time
+
+            self.out_buffer = str(time.time())
+        else:
+            self.out_buffer = self.in_buffer
         if not self.out_buffer:
             self.close()
 
 
-s = Server('', 5007)
+s = Server('', 8080)
 asyncore.loop()
