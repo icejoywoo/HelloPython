@@ -69,7 +69,7 @@ class Benchmark(object):
                     latencies = [i[1] for i in self.reporter]
                     print "[%s] qps: %d\tmax_latency: %d\tmin_latency: %d\tavg_latency: %d" \
                           % (
-                    timestamp, len(self.reporter), max(latencies), min(latencies), sum(latencies) / len(latencies))
+                        timestamp, len(self.reporter), max(latencies), min(latencies), sum(latencies) / len(latencies))
                     self.total_reporter += self.reporter
                     self.reporter = []
         self.summary()
