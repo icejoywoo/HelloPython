@@ -41,7 +41,6 @@ class RequestChannel(asynchat.async_chat):
         self.close()
 
     def collect_incoming_data(self, data):
-        print data
         self.in_buffer.append(data)
 
     def found_terminator(self):
