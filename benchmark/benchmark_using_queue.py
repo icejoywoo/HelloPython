@@ -106,9 +106,10 @@ def worker(func):
     return __worker
 
 
+# worker_num = 1 时, 计算性能已经很不错了, 如果io比较多的情况下, 可以增加线程数
 config = {
-    "worker_num": 10,
-    "max_qps": 1000,
+    "worker_num": 1,
+    "max_qps": 1000000,
     "step": 1, # step 越小 qps控制得越好
 }
 
