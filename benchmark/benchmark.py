@@ -141,7 +141,33 @@ def test_worker(kvargs):
     else:
         return -1
 
+@worker
+class worker_class(object):
+    def __init__(self, kvargs):
+        self.kvargs = kvargs
+
+    def __call__(self, *args, **kwargs):
+        if self.kvargs["step"] == 1:
+            return 0
+        else:
+            return -1
+
+
+def closure():
+    print "reading file..."
+    lines = [l.rstrip() for l in file("test")]
+    print "finished"
+    @worker
+    def _worker(kvargs):
+        if lines[0] == 1:
+            return 0
+        else:
+            return -1
+    return _worker
+
 
 with Timer(True):
     b = Benchmark(test_worker, **config)
+    # b = Benchmark(worker_class, **config)
+    # b = Benchmark(closure(), **config)
     b.loop()
