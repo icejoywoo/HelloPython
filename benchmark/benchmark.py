@@ -57,11 +57,12 @@ class Benchmark(object):
         # join会导致主线程hang住, 无法接受信号
         # [t.join() for t in self.all_threads]
         start = time.time()
-        tickets_count = self.kvargs["max_qps"]
+        tickets_count = self.kvargs.get("max_qps", 2**32)
+        step = self.kvargs.get("step", 1)
         while is_running:
             if (time.time() - start) * 1000 < 1000 and tickets_count > 0:
-                self.tickets.put(self.kvargs["step"])
-                tickets_count -= self.kvargs["step"]
+                self.tickets.put(step)
+                tickets_count -= step
             else:
                 tickets_count = self.kvargs["max_qps"]
                 if (time.time() - start) * 1000 < 1000:
@@ -75,6 +76,7 @@ class Benchmark(object):
                              sum(latencies) / len(latencies))
                     self.total_reporter += self.reporter
                     self.reporter = []
+        # print summary
         self.summary()
 
     def stop(self):
@@ -109,14 +111,6 @@ def worker(func):
     return __worker
 
 
-# worker_num = 1 时, 计算性能已经很不错了, 如果io比较多的情况下, 可以增加线程数
-config = {
-    "worker_num": 1,
-    "max_qps": 1000000,
-    "step": 1, # step 越小 qps控制得越好
-}
-
-
 # timer 可以在退出的时候打报告什么的
 class Timer(object):
     def __init__(self, verbose=False):
@@ -132,42 +126,3 @@ class Timer(object):
         self.elapsed_ms = (time.time() - self.start) * 1000
         if self.verbose:
             print 'elapsed time: %f ms' % self.elapsed_ms
-
-
-@worker
-def test_worker(kvargs):
-    if kvargs["step"] == 1:
-        return 0
-    else:
-        return -1
-
-@worker
-class worker_class(object):
-    def __init__(self, kvargs):
-        self.kvargs = kvargs
-
-    def __call__(self, *args, **kwargs):
-        if self.kvargs["step"] == 1:
-            return 0
-        else:
-            return -1
-
-
-def closure():
-    print "reading file..."
-    lines = [l.rstrip() for l in file("test")]
-    print "finished"
-    @worker
-    def _worker(kvargs):
-        if lines[0] == 1:
-            return 0
-        else:
-            return -1
-    return _worker
-
-
-with Timer(True):
-    b = Benchmark(test_worker, **config)
-    # b = Benchmark(worker_class, **config)
-    # b = Benchmark(closure(), **config)
-    b.loop()
