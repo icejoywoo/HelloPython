@@ -4,6 +4,7 @@
 
 __author__ = 'icejoywoo'
 
+import collections
 import Queue
 import signal
 import threading
@@ -28,6 +29,8 @@ try:
     signal.signal(signal.SIGPIPE, signal.SIG_IGN)
 except:
     pass
+
+Record = collections.namedtuple('Record', 'time latency ret')
 
 
 class Benchmark(object):
@@ -66,10 +69,10 @@ class Benchmark(object):
                 start = time.time()
                 if self.reporter:
                     timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                    latencies = [i[1] for i in self.reporter]
+                    latencies = [i.latency for i in self.reporter]
                     print "[%s] qps: %d\tmax_latency: %d\tmin_latency: %d\tavg_latency: %d" \
-                          % (
-                        timestamp, len(self.reporter), max(latencies), min(latencies), sum(latencies) / len(latencies))
+                          % (timestamp, len(self.reporter), max(latencies), min(latencies),
+                             sum(latencies) / len(latencies))
                     self.total_reporter += self.reporter
                     self.reporter = []
         self.summary()
@@ -82,28 +85,35 @@ class Benchmark(object):
 
     def summary(self):
         # summary
-        latencies = [i[1] for i in self.total_reporter]
+        latencies = [i.latency for i in self.total_reporter]
         print "operation count: %d\tavg_latency: %d" \
               % (len(latencies), sum(latencies) / len(latencies))
 
 
-def worker(bench, kvargs):
-    task = 0
-    while is_running:
-        count = bench.tickets.get()
-        for _ in xrange(count):
-            start = time.time()
-            ret = time.sleep(0.001)
-            latency = (time.time() - start) * 1000000  # ns
-            bench.reporter.append((start, latency, ret))
-            task += 1
-        bench.tickets.task_done()
+def worker(func):
+    """
+    @param func: decorator method's function
+    @return: a benchmark worker
+    """
+
+    def __worker(bench, kvargs):
+        while is_running:
+            count = bench.tickets.get()
+            for _ in xrange(count):
+                start = time.time()
+                ret = func(kvargs)
+                latency = (time.time() - start) * 1000000  # ns
+                bench.reporter.append(Record(start, latency, ret))
+            bench.tickets.task_done()
+
+    return __worker
 
 
+# worker_num = 1 时, 计算性能已经很不错了, 如果io比较多的情况下, 可以增加线程数
 config = {
-    "worker_num": 10,
-    "max_qps": 100000,
-    "step": 100, # step 越小 qps控制得越好
+    "worker_num": 1,
+    "max_qps": 1000000,
+    "step": 1, # step 越小 qps控制得越好
 }
 
 
@@ -111,19 +121,27 @@ config = {
 class Timer(object):
     def __init__(self, verbose=False):
         self.verbose = verbose
+        self.start = 0
+        self.elapsed_ms = 0
 
     def __enter__(self):
         self.start = time.time()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.end = time.time()
-        self.secs = self.end - self.start
-        self.msecs = self.secs * 1000  # millisecs
+        self.elapsed_ms = (time.time() - self.start) * 1000
         if self.verbose:
-            print 'elapsed time: %f ms' % self.msecs
+            print 'elapsed time: %f ms' % self.elapsed_ms
+
+
+@worker
+def test_worker(kvargs):
+    if kvargs["step"] == 1:
+        return 0
+    else:
+        return -1
 
 
 with Timer(True):
-    b = Benchmark(worker, **config)
+    b = Benchmark(test_worker, **config)
     b.loop()
