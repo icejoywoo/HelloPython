@@ -74,8 +74,8 @@ class TestWrapper(unittest.TestCase):
 
     def test_normal_attribute_not_proxied(self, ):
         with self.assertRaises(AttributeError):
-            self.wrapper.name
-            self.wrapper.name()
+            print "=====", self.wrapper.name
+            print self.wrapper.name()
 
     def test_empty_wrapper_raises_error(self, ):
         with self.assertRaises(NotImplementedError):
