@@ -4,6 +4,7 @@
 
 __author__ = 'icejoywoo'
 
+import collections
 import Queue
 import signal
 import threading
@@ -28,6 +29,8 @@ try:
     signal.signal(signal.SIGPIPE, signal.SIG_IGN)
 except:
     pass
+
+Record = collections.namedtuple('Record', 'time latency ret')
 
 
 class Benchmark(object):
@@ -66,7 +69,7 @@ class Benchmark(object):
                 start = time.time()
                 if self.reporter:
                     timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                    latencies = [i[1] for i in self.reporter]
+                    latencies = [i.latency for i in self.reporter]
                     print "[%s] qps: %d\tmax_latency: %d\tmin_latency: %d\tavg_latency: %d" \
                           % (timestamp, len(self.reporter), max(latencies), min(latencies),
                              sum(latencies) / len(latencies))
@@ -82,7 +85,7 @@ class Benchmark(object):
 
     def summary(self):
         # summary
-        latencies = [i[1] for i in self.total_reporter]
+        latencies = [i.latency for i in self.total_reporter]
         print "operation count: %d\tavg_latency: %d" \
               % (len(latencies), sum(latencies) / len(latencies))
 
@@ -100,7 +103,7 @@ def worker(func):
                 start = time.time()
                 ret = func(kvargs)
                 latency = (time.time() - start) * 1000000  # ns
-                bench.reporter.append((start, latency, ret))
+                bench.reporter.append(Record(start, latency, ret))
             bench.tickets.task_done()
 
     return __worker
