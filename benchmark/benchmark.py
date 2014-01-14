@@ -109,20 +109,3 @@ def worker(func):
             bench.tickets.task_done()
 
     return __worker
-
-
-# timer 可以在退出的时候打报告什么的
-class Timer(object):
-    def __init__(self, verbose=False):
-        self.verbose = verbose
-        self.start = 0
-        self.elapsed_ms = 0
-
-    def __enter__(self):
-        self.start = time.time()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.elapsed_ms = (time.time() - self.start) * 1000
-        if self.verbose:
-            print 'elapsed time: %f ms' % self.elapsed_ms
