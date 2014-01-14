@@ -10,7 +10,6 @@ from benchmark import Benchmark
 from benchmark import worker
 
 
-
 # timer 可以在退出的时候打报告什么的
 class Timer(object):
     def __init__(self, verbose=False):
@@ -52,12 +51,14 @@ def closure():
     print "reading file..."
     lines = [l.rstrip() for l in file("test")]
     print "finished"
+
     @worker
     def _worker(kvargs):
         if lines[0] == 1:
             return 0
         else:
             return -1
+
     return _worker
 
 
@@ -68,7 +69,6 @@ config = {
     "max_qps": 1000000,
     "step": 1, # step 越小 qps控制得越好
 }
-
 
 with Timer(True):
     b = Benchmark(test_worker, **config)
