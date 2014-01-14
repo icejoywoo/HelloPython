@@ -93,7 +93,7 @@ def worker(bench, kvargs):
         count = bench.tickets.get()
         for _ in xrange(count):
             start = time.time()
-            ret = 0
+            ret = time.sleep(0.001)
             latency = (time.time() - start) * 1000000  # ns
             bench.reporter.append((start, latency, ret))
             task += 1
