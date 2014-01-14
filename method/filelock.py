@@ -4,6 +4,10 @@
 
 __author__ = 'wujiabin'
 
+"""
+only for *nix, not avaliable for windows
+"""
+
 from fcntl import flock, LOCK_EX, LOCK_UN, LOCK_NB
 
 class LockFile(object):
