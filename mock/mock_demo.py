@@ -5,26 +5,35 @@
 __author__ = 'icejoywoo'
 
 from mock import Mock
-from mock import patch
 
 
-@patch('test_module.ClassName1')
-@patch('test_module.ClassName2')
-def test_method(self, MockClass2, MockClass1):
-    test_module.ClassName1()
-    test_module.ClassName2()
-
-    self.assertTrue(MockClass1.called, "ClassName1 not patched")
-    self.assertTrue(MockClass2.called, "ClassName2 not patched")
-
-
-class Test():
+class a():
     pass
 
 
-real = Test()
+real = a()
 real.method = Mock()
 real.method.return_value = 3
 print real.method(3, 4, 5, key='value')
+# 验证上次调用的参数是否相同
+print real.method.assert_called_with(3, 4, 5, key='value')
 
-test_method()
+m = Mock(side_effect=KeyError("foo"))
+try:
+    m()
+except KeyError, e:
+    print e
+
+values = {'a': 1, 'b': 2, 'c': 3}
+
+
+def side_effect(arg):
+    return values[arg]
+
+
+m.side_effect = side_effect
+print m('a'), m('b'), m('c')
+
+m.side_effect = [5, 4, 3, 2, 1]
+print m(), m(), m(), m(), m()  # 不能循环, 只有一次
+
