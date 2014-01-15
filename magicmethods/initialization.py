@@ -13,8 +13,7 @@ class Singleton(object):
         it = cls.__dict__.get("__it__")
         if it is not None:
             return it
-        cls.__it__ = it = object.__new__(cls)
-
+        cls.__it__ = it = super(Singleton, cls).__new__(cls)
         it.init(*args, **kwds)
         return it
 
@@ -53,7 +52,7 @@ if __name__ == "__main__":
     x = MySingleton(a=1)
     y = MySingleton()
     assert x is y
-    print x.a, y.b
+    print x.a, y.a
     print x.b, y.b
 
     f = FileObject()

@@ -38,6 +38,5 @@ class Distance(object):
 if __name__ == "__main__":
     d = Distance()
     d.meter = 1
-    d.foot = 3
     print d.foot
     print d.meter

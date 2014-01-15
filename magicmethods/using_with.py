@@ -21,7 +21,7 @@ class Closer:
             self.obj.close()
         except AttributeError: # obj isn't closable
             print 'Not closable.'
-            return True # exception handled successfully
+            return True  # exception handled successfully
 
 
 if __name__ == "__main__":
