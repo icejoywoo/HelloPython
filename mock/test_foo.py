@@ -54,3 +54,29 @@ def test_production_class_method():
 def test_emit_line():
     print foo.emit_line("key", "value")
     assert "key\tvalue" == foo.emit_line("key", "value")
+
+
+@mock.patch("foo.emit_line", mock.MagicMock(return_value="test"))
+def test_magic_method():
+    assert "test" == foo.emit_line()
+    foo.emit_line.__str__ = mock.Mock(return_value="test")
+    assert "test" == str(foo.emit_line)
+
+
+def test_patch_dict():
+    foo = {"key": "value"}
+    original = foo.copy()
+    with mock.patch.dict(foo, {"newkey": "newvalue"}, clear=True):
+        assert foo == {"newkey": "newvalue"}
+    assert foo == original
+
+
+from nose.tools import *
+
+
+@raises(TypeError)
+def test_create_autospec():
+    mock_function = mock.create_autospec(foo.function, return_value='fishy')
+    assert mock_function(1, 2, 3) == "fishy"
+    mock_function.assert_called_once_with(1, 2, 3)
+    mock_function('wrong arguments')

@@ -4,6 +4,13 @@
 
 __author__ = 'icejoywoo'
 
+import sys
+
+this_module = sys.modules[__name__]
+
+this_module.__str__ = lambda: "Test"
+print str(this_module)
+
 
 # 待测类
 class ProductionClass():
@@ -16,4 +23,8 @@ class ProductionClass():
 
 # 待测方法
 def emit_line(key, value):
+    pass
+
+
+def function(a, b, c):
     pass
