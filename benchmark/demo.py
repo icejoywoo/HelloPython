@@ -4,6 +4,7 @@
 
 __author__ = 'wujiabin'
 
+import os
 import time
 
 from benchmark import Benchmark
@@ -49,7 +50,7 @@ class worker_class(object):
 
 def closure():
     print "reading file..."
-    lines = [l.rstrip() for l in file("test")]
+    lines = [l.rstrip() for l in file(os.path.abspath(__file__))]
     print "finished"
 
     @worker
@@ -71,7 +72,7 @@ config = {
 }
 
 with Timer(True):
-    b = Benchmark(test_worker, **config)
+    # b = Benchmark(test_worker, **config)
     # b = Benchmark(worker_class, **config)
-    # b = Benchmark(closure(), **config)
+    b = Benchmark(closure(), **config)
     b.loop()
