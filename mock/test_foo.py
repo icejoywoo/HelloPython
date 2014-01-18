@@ -71,6 +71,7 @@ def test_patch_dict():
     assert foo == original
 
 
+# https://nose.readthedocs.org/en/latest/testing_tools.html
 from nose.tools import *
 
 
@@ -80,3 +81,11 @@ def test_create_autospec():
     assert mock_function(1, 2, 3) == "fishy"
     mock_function.assert_called_once_with(1, 2, 3)
     mock_function('wrong arguments')
+
+
+import time
+
+
+@timed(.2)
+def test_time():
+    time.sleep(0.1)
