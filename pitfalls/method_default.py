@@ -10,13 +10,27 @@ def get_from_context(a=None, history=[]):
         return history
     if a not in history:
         history.append(a)
-    return a
+    return history
+
+
+# l will not be shared by calls
+def f(a, l=None):
+    if not l:
+        l = []
+    l.append(a)
+    return l
 
 
 if __name__ == "__main__":
-    get_from_context("a")
+    print get_from_context("a")
+    print get_from_context("b")
+    print get_from_context("b")
+    print get_from_context(history=[])
     print get_from_context()
-    get_from_context("b")
-    print get_from_context()
-    get_from_context("b")
-    print get_from_context()
+    print dir(get_from_context), type(get_from_context)
+    print get_from_context.func_defaults
+
+    print f("test")
+    print f("a")
+
+
