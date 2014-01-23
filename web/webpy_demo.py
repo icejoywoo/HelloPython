@@ -48,7 +48,7 @@ db = web.database(dbn='sqlite', db="sqlite.db")
 
 conn = db._db_cursor().connection
 cursor = conn.cursor()
-#cursor.execute('DROP TABLE todo')
+cursor.execute('DROP TABLE todo')
 cursor.execute('''
 CREATE TABLE todo (
     id text primary key,
