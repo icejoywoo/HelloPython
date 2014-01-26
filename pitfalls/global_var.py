@@ -9,7 +9,7 @@ __author__ = 'wujiabin'
 
 x = 10
 def foo():
-    global x # without this declaration, raise a UnboundLocalError: local variable 'x' referenced before assignment
+    global x  # without this declaration, raise a UnboundLocalError: local variable 'x' referenced before assignment
     print(x)
     x += 1
 foo()
