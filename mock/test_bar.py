@@ -8,15 +8,14 @@ from bar import Coin, Wallet
 from mock import *
 
 
-def setUp():
-    print "setup"
+class TestBar():
+    def setUp(self):
+        print "setup"
 
+    def tearDown(self):
+        print "teardown"
 
-def tearDown():
-    print "teardown"
-
-
-def test_bar1():
-    a = Coin('dollar', 100)
-    a.__str__ = Mock(return_value="__str__ magic method")
-    assert str(a) == "__str__ magic method"
+    def test_bar1(self):
+        a = Coin('dollar', 100)
+        a.__str__ = Mock(return_value="__str__ magic method")
+        assert str(a) == "__str__ magic method"
