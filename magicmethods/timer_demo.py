@@ -19,3 +19,14 @@ class Timer(object):
 if __name__ == "__main__":
     with Timer():
         [i for i in xrange(10000000)]
+
+try:
+    dict_file = open(__file__)
+    for line in dict_file:
+        print line, # do something
+finally:
+    dict_file.close()
+
+with open(__file__) as dict_file, open(__file__) as d2:
+    for line in dict_file:
+        print line, # do something
