@@ -8,7 +8,6 @@ import traceback
 
 
 class Coin:
-
     def __init__(self, _name, _value):
         self._name = _name
         self._value = _value
@@ -33,6 +32,9 @@ class Coin:
     def __str__(self):
         return '%s[Name: %s, Value: %s]' % (self.__class__.__name__, self.name, self.value)
 
+    def __repr__(self):
+        return self.__str__()
+
 
 class Wallet:
     def __init__(self):
@@ -52,6 +54,9 @@ class Wallet:
     def __iter__(self):
         for i in self.coins:
             yield i
+
+    def __repr__(self):
+        return self.__str__()
 
 
 if __name__ == "__main__":
