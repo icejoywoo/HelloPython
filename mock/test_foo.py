@@ -9,6 +9,9 @@ __author__ = 'icejoywoo'
 import foo
 import mock
 
+# https://nose.readthedocs.org/en/latest/testing_tools.html
+from nose.tools import *
+
 
 class a():
     pass
@@ -71,19 +74,12 @@ def test_patch_dict():
     assert foo == original
 
 
-# https://nose.readthedocs.org/en/latest/testing_tools.html
-from nose.tools import *
-
-
 @raises(TypeError)
 def test_create_autospec():
     mock_function = mock.create_autospec(foo.function, return_value='fishy')
     assert mock_function(1, 2, 3) == "fishy"
     mock_function.assert_called_once_with(1, 2, 3)
     mock_function('wrong arguments')
-
-
-import time
 
 
 @timed(.2)
