@@ -83,7 +83,9 @@ class TestBar():
         w = Wallet()
         w.add(Coin('dollar', 100))
 
-    def test_bar6(self):
+    @nottest
+    #@istest
+    def foo_bar6(self):
         import os
         os.popen = Mock()
         # mock.return_value is a new Mock, a call chain
