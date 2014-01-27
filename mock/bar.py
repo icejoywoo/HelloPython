@@ -7,13 +7,16 @@ __author__ = 'wujiabin'
 import traceback
 
 
-class Coin:
+class Coin(object):
     def __init__(self, _name, _value):
         self._name = _name
         self._value = _value
 
     @property
     def name(self):
+        '''
+        property: http://docs.python.org/2/library/functions.html#property
+        '''
         return self._name
 
     @property
@@ -36,7 +39,7 @@ class Coin:
         return self.__str__()
 
 
-class Wallet:
+class Wallet(object):
     def __init__(self):
         self.coins = []
         (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
