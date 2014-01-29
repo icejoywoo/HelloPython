@@ -13,37 +13,6 @@ import mock
 from nose.tools import *
 
 
-class a():
-    pass
-
-
-real = a()
-real.method = mock.Mock()
-real.method.return_value = 3
-print real.method(3, 4, 5, key='value')
-# 验证上次调用的参数是否相同
-print real.method.assert_called_with(3, 4, 5, key='value')
-
-m = mock.Mock(side_effect=KeyError("foo"))
-try:
-    m()
-except KeyError, e:
-    print e
-
-values = {'a': 1, 'b': 2, 'c': 3}
-
-
-def side_effect(arg):
-    return values[arg]
-
-
-m.side_effect = side_effect
-print m('a'), m('b'), m('c')
-
-m.side_effect = [5, 4, 3, 2, 1]
-print m(), m(), m(), m(), m()  # 不能循环, 只有一次
-
-
 def test_production_class_method():
     with mock.patch.object(foo.ProductionClass, 'method', return_value=None) as mock_method:
         thing = foo.ProductionClass()
@@ -85,3 +54,32 @@ def test_create_autospec():
 @timed(.2)
 def test_time():
     time.sleep(0.1)
+
+
+if __name__ == "__main__":
+    class a():
+        pass
+
+    real = a()
+    real.method = mock.Mock()
+    real.method.return_value = 3
+    print real.method(3, 4, 5, key='value')
+    # 验证上次调用的参数是否相同
+    print real.method.assert_called_with(3, 4, 5, key='value')
+
+    m = mock.Mock(side_effect=KeyError("foo"))
+    try:
+        m()
+    except KeyError, e:
+        print e
+
+    values = {'a': 1, 'b': 2, 'c': 3}
+
+    def side_effect(arg):
+        return values[arg]
+
+    m.side_effect = side_effect
+    print m('a'), m('b'), m('c')
+
+    m.side_effect = [5, 4, 3, 2, 1]
+    print m(), m(), m(), m(), m()  # 不能循环, 只有一次
