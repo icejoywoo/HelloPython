@@ -3445,7 +3445,7 @@ area_code_6 = {
 }
 
 # 输入身份证前17位
-id_checksum = lambda s: str((1-2*int(s, 13)) % 11).replace('10', 'X')
+id_checksum = lambda s: str((1 - 2 * int(s, 13)) % 11).replace('10', 'X')
 
 
 def location_from_id(_id):
@@ -3456,7 +3456,8 @@ def location_from_id(_id):
     # 顺序码 奇数分配给男性，偶数分配给女性
     gender = 'Female' if int(_id[14:17]) % 2 == 0 else 'Male'
     return {
-        'location': (area_code_2.get(id_area_2, None), area_code_4.get(id_area_4, None), area_code_6.get(id_area_6, None)),
+        'location': (
+        area_code_2.get(id_area_2, None), area_code_4.get(id_area_4, None), area_code_6.get(id_area_6, None)),
         'gender': gender
     }
 
