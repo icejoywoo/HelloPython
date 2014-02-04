@@ -71,6 +71,7 @@ config = {
     "step": 1, # step 越小 qps控制得越好
 }
 
+# 简单测试
 with Timer(True):
     # b = Benchmark(test_worker, **config)
     # b = Benchmark(worker_class, **config)
