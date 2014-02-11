@@ -68,7 +68,8 @@ def random_id(area_code_6={}):
     except IndexError:
         print "loading area_code once ..."
         for k, v in area_code.items():
-            area_code_6[k] = v
+            if len(k) == 6:
+                area_code_6[k] = v
         return _random_id(area_code_6)
 
 
