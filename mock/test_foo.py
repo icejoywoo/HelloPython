@@ -11,7 +11,6 @@ import mock
 
 # https://nose.readthedocs.org/en/latest/testing_tools.html
 from nose.tools import *
-import time
 
 
 def test_production_class_method():
@@ -55,28 +54,3 @@ def test_create_autospec():
 @timed(.2)
 def test_time():
     time.sleep(0.1)
-
-if __name__ == "__main__":
-    class a(object):
-        pass
-
-    real = a()
-    real.method = mock.Mock()
-    real.method.return_value = 3
-    print real.method(3, 4, 5, key='value')
-    # 验证上次调用的参数是否相同
-    print real.method.assert_called_with(3, 4, 5, key='value')
-
-    m = mock.Mock(side_effect=KeyError("foo"))
-    try:
-        m()
-    except KeyError, e:
-        print e
-
-    values = {'a': 1, 'b': 2, 'c': 3}
-
-    m.side_effect = lambda x: values[x]
-    print m('a'), m('b'), m('c')
-
-    m.side_effect = [5, 4, 3, 2, 1]
-    print m(), m(), m(), m(), m()  # 不能循环, 只有一次

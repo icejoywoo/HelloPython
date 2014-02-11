@@ -4,13 +4,15 @@
 
 __author__ = 'wujiabin'
 
+from nose.tools import *
+
 from bar import Coin, Wallet
 from mock import *
-from nose.tools import *
+
 
 # global
 coins = []
-# 测试前缀, 不会用
+# mock测试前缀, 不会用
 patch.TEST_PREFIX = 'foo'
 
 
