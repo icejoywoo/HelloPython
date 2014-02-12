@@ -19,23 +19,19 @@ import datetime
 import random
 
 
-area_code_2 = dict([i.split() for i in file("id_area_code_china.txt") if len(i.split()[0]) == 2])
-area_code_4 = dict([i.split() for i in file("id_area_code_china.txt") if len(i.split()[0]) == 4])
-area_code_6 = dict([i.split() for i in file("id_area_code_china.txt") if len(i.split()[0]) == 6])
-
+area_code = dict([i.split() for i in file("id_area_code_china.txt")])
 id_checksum = lambda s: str((1 - 2 * int(s, 13)) % 11).replace('10', 'X')
 
 
 def location_from_id(_id):
     # 地址码   出生日期码   顺序码   校验码
-    id_area_2 = _id[:2]
-    id_area_4 = _id[:4]
-    id_area_6 = _id[:6]
+    area_2 = area_code.get(_id[:2], None)
+    area_4 = area_code.get(_id[:4], None)
+    area_6 = area_code.get(_id[:6], None)
     # 顺序码 奇数分配给男性，偶数分配给女性
     gender = 'Female' if int(_id[14:17]) % 2 == 0 else 'Male'
     return {
-        'location': (
-        area_code_2.get(id_area_2, None), area_code_4.get(id_area_4, None), area_code_6.get(id_area_6, None)),
+        'location': (area_2, area_4, area_6),
         'gender': gender
     }
 
@@ -44,7 +40,7 @@ def location_from_id(_id):
 def validate_id(_id):
     if len(_id) != 18:
         raise TypeError("Only support 18-bit id code.")
-    location = area_code_6.get(_id[:6], None)
+    location = area_code.get(_id[:6], None)
     if not location:
         return False, "location does not exist! location code: %s" % _id[:6]
 
@@ -58,7 +54,7 @@ def random_birthday(start=datetime.datetime(1900, 1, 1), end=datetime.datetime.n
         seconds=random.randint(0, int((end - start).total_seconds())))).strftime("%Y%m%d")
 
 
-def random_id():
+def _random_id(area_code_6):
     location = random.choice(area_code_6.keys())
     birthday = random_birthday()
     sequence = "%03d" % random.randint(0, 999)
@@ -66,19 +62,32 @@ def random_id():
     return "%s%s%s%s" % (location, birthday, sequence, checksum)
 
 
+def random_id(area_code_6={}):
+    try:
+        return _random_id(area_code_6)
+    except IndexError:
+        print "loading area_code once ..."
+        for k, v in area_code.items():
+            if len(k) == 6:
+                area_code_6[k] = v
+        return _random_id(area_code_6)
+
+
+def _random_chinese_name(d, f):
+    name = random.choice(d)
+    family_name = [i for i in f if name.startswith(i)]
+    return family_name[0] if family_name else "Unknown", name
+
+
 # chinese name
 def random_chinese_name(d=[], f=[]):
     try:
-        name = random.choice(d)
-        family_name = [i for i in f if name.startswith(i)]
-        return family_name[0] if family_name else "Unknown", name
+        return _random_chinese_name(d, f)
     except IndexError:
         print "loading dict once ..."
         [d.append(i.strip()) for i in file("chinese_names.txt")]
         [f.append(i.strip()) for i in file("chinese_family_names.txt")]
-        name = random.choice(d)
-        family_name = [i for i in f if name.startswith(i)]
-        return family_name[0] if family_name else "Unknown", name
+        return _random_chinese_name(d, f)
 
 
 if __name__ == "__main__":
@@ -98,7 +107,8 @@ if __name__ == "__main__":
 
     print validate_id('152122198901055565')
 
-    print random_id()
+    for _ in xrange(5):
+        print random_id()
 
     for _ in xrange(5):
         family_name, name = random_chinese_name()
