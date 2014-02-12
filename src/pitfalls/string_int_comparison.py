@@ -61,12 +61,10 @@ print id(f) < id(1000), id(f), id(1000), id(1000)
 print f < 1000  # old-style class instance > int 应该是 Foo() > 1000, 这不符合规则4, Foo是old-style类
 print Bar() > 1000  # new-style class instance > int
 
-print 'a' > 1000 # str > int
+print 'a' > 1000  # str > int
 print {} > 1000  # dict > int
 print [] > 1000  # list > int
 print (1,) > 1000  # tuple > int
 
 # 规则1的例外
 print Foo() < Bar()  # old-style class < new-style class
-
-

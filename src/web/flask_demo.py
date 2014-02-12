@@ -20,6 +20,7 @@ app = Flask(__name__)
 # import os; os.urandom(24)
 app.secret_key = '\xc4\xda\xc2\x0b\xa2\xf7\x07\xbb\x9df3a\xad<\x85\x95\xd0\x07\xef\x0b\n\x05PU'
 
+
 # error pages config
 @app.errorhandler(404)
 def page_not_found(error):

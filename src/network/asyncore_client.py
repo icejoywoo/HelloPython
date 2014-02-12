@@ -26,5 +26,3 @@ class Client(asyncore.dispatcher_with_send):
 c = Client('', 8080, 'Hello, world\r\n')
 c = Client('', 8080, 'time\r\n')
 asyncore.loop()
-
-

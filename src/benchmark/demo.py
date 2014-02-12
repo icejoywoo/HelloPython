@@ -68,7 +68,7 @@ config = {
     "worker_num": 1,
     "time": 20,
     "max_qps": 1000000,
-    "step": 1, # step 越小 qps控制得越好
+    "step": 1,  # step 越小 qps控制得越好
 }
 
 # 简单测试

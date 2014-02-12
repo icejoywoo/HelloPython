@@ -53,4 +53,3 @@ if __name__ == "__main__":
 
     print "size without slots: %d" % sum([sys.getsizeof(p) for p in persons])
     print "size with slots: %d" % sum([sys.getsizeof(p) for p in persons_])
-
