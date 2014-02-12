@@ -4,8 +4,8 @@
 
 __author__ = 'icejoywoo'
 
+
 # http://onlypython.group.iteye.com/group/wiki/1362-python-39-s-descriptor
-#
 class Meter(object):
     '''Descriptor for a meter.'''
 

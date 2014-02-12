@@ -4,6 +4,7 @@
 
 __author__ = 'icejoywoo'
 
+
 # __new__ 在__init__之前调用, 并且创建对象
 class Singleton(object):
     def __new__(cls, *args, **kwds):

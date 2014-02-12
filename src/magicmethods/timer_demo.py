@@ -25,10 +25,10 @@ if __name__ == "__main__":
 try:
     dict_file = open(__file__)
     for line in dict_file:
-        print line, # do something
+        print line,  # do something
 finally:
     dict_file.close()
 
 with open(__file__) as dict_file, open(__file__) as d2:
     for line in dict_file:
-        print line, # do something
+        print line,  # do something

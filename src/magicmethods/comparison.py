@@ -13,7 +13,7 @@ class Word(str):
         # type, so we have to initialize it early (at creation)
         if ' ' in word:
             print "Value contains spaces. Truncating to first space."
-            word = word[:word.index(' ')] # Word is now all chars before first space
+            word = word[:word.index(' ')]  # Word is now all chars before first space
         return str.__new__(cls, word)
 
     #    def __eq__(self, other):

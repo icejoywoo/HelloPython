@@ -8,6 +8,7 @@ from abc import ABCMeta
 from abc import abstractproperty
 from abc import abstractmethod
 
+
 # interface
 class Drawable():
     __metaclass__ = ABCMeta
@@ -37,7 +38,7 @@ class Square(Drawable):
     def __init__(self):
         self._y = None
 
-    def draw(self, x, y, scale=1.0): #####
+    def draw(self, x, y, scale=1.0):
         print "x: %f, y: %f" % (x * scale, y * scale)
 
     @property
@@ -114,6 +115,7 @@ class WinMediaPlay_2(IMediaPlayer_2):
 player2 = WinMediaPlay_2()
 player2.price = 20
 print(player2.price)
+
 
 # static method & class method
 class aa():

@@ -4,6 +4,7 @@
 
 __author__ = 'icejoywoo'
 
+
 # refer method/closure.py
 class context(object):
     def __init__(self):

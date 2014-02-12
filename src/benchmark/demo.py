@@ -7,8 +7,8 @@ __author__ = 'wujiabin'
 import os
 import time
 
-from src.benchmark.benchmark import Benchmark
-from src.benchmark.benchmark import worker
+from benchmark import Benchmark
+from benchmark import worker
 
 
 # timer 可以在退出的时候打报告什么的
