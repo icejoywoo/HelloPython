@@ -5,6 +5,7 @@ python:
 install:
     - pip install -q flask --use-mirrors
     - pip install -q nose --use-mirrors
+    - pip install -q coverage --use-mirrors
     - pip install -q web.py --use-mirrors
     - pip install -q  --use-mirrors
     - pip install pep8 --use-mirrors
@@ -14,4 +15,5 @@ before_script:
     - "pep8 --exclude=migrations --ignore=E501,E225 src"
     - pyflakes -x W src
 script:
-    - nosetests
+    - nosetests --with-coverage --with-xunit --cover-erase
+    - coverage report
