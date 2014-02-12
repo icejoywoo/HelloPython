@@ -26,8 +26,6 @@ CPython的实现细节汇总:
 # http://docs.python.org/2/library/stdtypes.html#comparisons
 # http://stackoverflow.com/questions/3270680/how-does-python-compare-string-and-int
 
-print 'a' > 1000
-
 
 class Foo(object):
     pass
@@ -60,9 +58,11 @@ class Bar(object):
 print Foo > 1000  # classobj > int
 f = Foo()
 print id(f) < id(1000), id(f), id(1000), id(1000)
-print f < 1000  # instance < int 应该是 Foo() > 1000, 这不符合规则4
+print f < 1000  # old-style class instance > int 应该是 Foo() > 1000, 这不符合规则4, Foo是old-style类
+print Bar() > 1000  # new-style class instance > int
 
-print {} > 1000  # dict < int
+print 'a' > 1000 # str > int
+print {} > 1000  # dict > int
 print [] > 1000  # list > int
 print (1,) > 1000  # tuple > int
 
