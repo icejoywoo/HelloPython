@@ -10,7 +10,8 @@ install:
     - pip install -q web.py
     - pip install -q pep8
 before_script:
+    - "rm -f .coverage coverage.xml"
     - "pep8 --exclude=migrations --ignore=E501,E225 src"
 script:
-    - nosetests --with-coverage --with-xunit --cover-erase
+    - nosetests -s --with-coverage --with-xunit --cover-erase --xunit-file=coverage.xml
     - coverage report
