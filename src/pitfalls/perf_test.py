@@ -20,13 +20,12 @@ class Timer(object):
 
 
 def main():
-    for _ in xrange(10**8):
+    for _ in xrange(10 ** 8):
         pass
 
 with Timer():
     main()
 
 with Timer():
-    for _ in xrange(10**8):
+    for _ in xrange(10 ** 8):
         pass
-
