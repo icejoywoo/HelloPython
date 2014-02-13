@@ -11,7 +11,7 @@ class NGram(object):
         self.table = {}
         self.parse_text(text)
         self.calculate_length()
- 
+
     def parse_text(self, text):
         chars = ' ' * self.n  # initial sequence of spaces with length n
 
@@ -25,7 +25,7 @@ class NGram(object):
         """
         self.length = sum([x * x for x in self.table.values()]) ** 0.5
         return self.length
- 
+
     def __sub__(self, other):
         """ Find the difference between two NGram objects by finding the cosine
         of the angle between the two vector representations of the table of
@@ -34,21 +34,21 @@ class NGram(object):
         """
         if not isinstance(other, NGram):
             raise TypeError("Can't compare NGram with non-NGram object.")
- 
+
         if self.n != other.n:
             raise TypeError("Can't compare NGram objects of different size.")
- 
+
         total = 0
         for k in self.table:
             total += self.table[k] * other.table.get(k, 0)
- 
+
         return 1.0 - (float(total)) / (float(self.length) * float(other.length))
- 
+
     def find_match(self, languages):
         """ Out of a list of NGrams that represent individual languages, return
         the best match.
         """
-        return min(languages, lambda n: self - n)
+        return min(languages, key=lambda n: self - n)
 
 if __name__ == "__main__":
     english = NGram("""My dear Alicia,--You are very good in taking notice of Frederica, and
@@ -106,10 +106,35 @@ belied me. This project will serve at least to amuse me, and prevent
 my feeling so acutely this dreadful separation from you and all whom I
 love.
 """, n=3)
-    french = NGram("""Lucie, étudiante des États-Unis, vient d'arriver à Charles de Gaulle, l'aéroport qui accueille chaque jour à Paris, 1 million de visiteurs. Paris. Enfin. Ça a toujours été le rêve de Lucie : vivre dans la Ville lumière, la ville des beaux arts, du quartier latin, du vin, et qui sait, peut-être la ville d'une petite histoire d'amour.
-Son projet est d'étudier en France pendant un an, pour obtenir sa licence ès informatique à l'Université de Versailles à St. Quentin-en-Yvelines. C'est l'université qui lui a offert une bourse pour faire ses études. En plus, sa copine Josephine fait ses études là-bas, et Lucie va pouvoir vivre avec elle dans son petit appartement.
-Elle prend le RER qui la mène directement à la Gare St. Lazare, en centre-ville. Une fois arrivée, elle cherche le quai du train pour Versailles. Elle monte dans le train, et bientôt il entre dans un tunnel sombre en direction de Versailles. Lucie est un peu déçue, parce qu'elle doit rester à Versailles bien qu'elle veuille vivre à Paris. Mais elle se dit que Versailles n'est qu'à quelques minutes en train de la grande ville de Paris, et qu'il y a aussi plusieurs attractions à Versailles.
-Le train sort du tunnel, et en passant par la grande ville, elle voit un grand cimetière, la tour Eiffel et Montmarte avec la basilique du Sacré-Coeur tout près. Quelques instants plus tard, elle arrive en gare de Versailles.
-Elle est arrivée à destination. Devant elle le grand Château de Versailles où Louis XIV, le Roi Soleil, organisa des fêtes et vécut la grande vie entouré de ses maîtresses. À droite se trouve l'avenue de St.-Cloud, où est situé l'appartement dans lequel elle va vivre avec Josephine. Fatiguée, mais joyeuse, elle commence à chercher l'adresse de l'appartement. « Toute seule dans un nouveau pays, ne connaissant personne, l'avenir, je t'embrasse vivement ! » se dit Lucie.""", n=3)
+    french = NGram("""Lucie, étudiante des États-Unis, vient d'arriver à Charles
+de Gaulle, l'aéroport qui accueille chaque jour à Paris, 1 million de visiteurs.
+Paris. Enfin. Ça a toujours été le rêve de Lucie : vivre dans la Ville lumière,
+la ville des beaux arts, du quartier latin, du vin, et qui sait, peut-être la
+ville d'une petite histoire d'amour.
+Son projet est d'étudier en France pendant un an, pour obtenir sa licence ès
+informatique à l'Université de Versailles à St. Quentin-en-Yvelines. C'est
+l'université qui lui a offert une bourse pour faire ses études. En plus, sa copine
+Josephine fait ses études là-bas, et Lucie va pouvoir vivre avec elle dans son petit
+appartement.
+Elle prend le RER qui la mène directement à la Gare St. Lazare, en centre-ville.
+Une fois arrivée, elle cherche le quai du train pour Versailles. Elle monte dans
+le train, et bientôt il entre dans un tunnel sombre en direction de Versailles.
+Lucie est un peu déçue, parce qu'elle doit rester à Versailles bien qu'elle veuille
+ vivre à Paris. Mais elle se dit que Versailles n'est qu'à quelques minutes en
+ train de la grande ville de Paris, et qu'il y a aussi plusieurs attractions à Versailles.
+Le train sort du tunnel, et en passant par la grande ville, elle voit un grand
+cimetière, la tour Eiffel et Montmarte avec la basilique du Sacré-Coeur tout près.
+Quelques instants plus tard, elle arrive en gare de Versailles.
+Elle est arrivée à destination. Devant elle le grand Château de Versailles où Louis
+XIV, le Roi Soleil, organisa des fêtes et vécut la grande vie entouré de ses maîtresses.
+À droite se trouve l'avenue de St.-Cloud, où est situé l'appartement dans lequel elle
+va vivre avec Josephine. Fatiguée, mais joyeuse, elle commence à chercher l'adresse
+de l'appartement. « Toute seule dans un nouveau pays, ne connaissant personne,
+l'avenir, je t'embrasse vivement ! » se dit Lucie.""", n=3)
 
-    print NGram("Hello, World!", n=3).find_match([english, french])
+    # test
+    assert NGram("The optional key argument specifies a one-argument ordering function"
+                 " like that used for list.sort().", n=3).find_match([english, french]) == english
+
+    assert NGram("The woman drank milk.", n=3).find_match([english, french]) == english
+    assert NGram("La femme boit du lait.", n=3).find_match([english, french]) == french
