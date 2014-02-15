@@ -19,6 +19,7 @@ class Timer(object):
         print "elapsed:", time.time() - self.start
 
 
+# case 1
 def main():
     for _ in xrange(10 ** 8):
         pass
@@ -26,6 +27,7 @@ def main():
 with Timer():
     main()
 
+# case 2
 with Timer():
     for _ in xrange(10 ** 8):
         pass
