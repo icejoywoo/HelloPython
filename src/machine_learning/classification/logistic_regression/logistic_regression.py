@@ -5,7 +5,6 @@
 __author__ = 'icejoywoo'
 # http://my.oschina.net/zenglingfan/blog/177586
 
-from math import *
 from numpy import *
 
 # 加载数据, 前两列是点所属的 X1, X2 坐标, 最后一列是该点所属分类
@@ -19,7 +18,8 @@ def loadDataSet():
         # 为了方便计算, 读出 X1, X2 后要在前面补上一个 1.0
         dataMat.append([1.0, float(lineArr[0]), float(lineArr[1])])
         labelMat.append(int(lineArr[2]))
-    return dataMat,labelMat
+    print dataMat
+    return dataMat, labelMat
 
 
 # sigmoid 函数
@@ -74,7 +74,7 @@ def plotBestFit(weights):
 
     # 显示
     plt.show()
-
+    plt.savefig('myfilename.png')
 
 if __name__ == "__main__":
     dataAttr, labelMat = loadDataSet()
