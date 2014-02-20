@@ -74,7 +74,7 @@ def plotBestFit(weights):
 
     # 显示
     plt.show()
-    plt.savefig('myfilename.png')
+    # plt.savefig('myfilename.png')
 
 if __name__ == "__main__":
     dataAttr, labelMat = loadDataSet()
