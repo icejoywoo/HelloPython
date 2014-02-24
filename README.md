@@ -6,3 +6,6 @@ HelloPython
 Simple Python demos
 
 * benchmark is a simple benchmark demo.
+
+导出名人名言的库
+http://www.rate9.com/
