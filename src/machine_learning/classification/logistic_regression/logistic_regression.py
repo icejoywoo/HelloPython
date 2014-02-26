@@ -79,4 +79,5 @@ def plotBestFit(weights):
 if __name__ == "__main__":
     dataAttr, labelMat = loadDataSet()
     weights = gradAscent(dataAttr, labelMat)
+    print weights.getA()
     plotBestFit(weights.getA())
