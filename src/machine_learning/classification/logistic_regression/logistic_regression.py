@@ -5,11 +5,13 @@
 __author__ = 'icejoywoo'
 # http://my.oschina.net/zenglingfan/blog/177586
 
+from math import *
 from numpy import *
 
 # 加载数据, 前两列是点所属的 X1, X2 坐标, 最后一列是该点所属分类
 def loadDataSet():
-    dataMat = []; labelMat = []
+    dataMat = []
+    labelMat = []
     fr = open('testSet.txt')
     for line in fr.readlines():
         lineArr = line.strip().split()
@@ -18,7 +20,6 @@ def loadDataSet():
         # 为了方便计算, 读出 X1, X2 后要在前面补上一个 1.0
         dataMat.append([1.0, float(lineArr[0]), float(lineArr[1])])
         labelMat.append(int(lineArr[2]))
-    print dataMat
     return dataMat, labelMat
 
 
@@ -31,17 +32,18 @@ def sigmoid(inX):
 def gradAscent(dataMatIn, classLabels):
     dataMatrix = mat(dataMatIn)             # convert to NumPy matrix
     labelMat = mat(classLabels).transpose() # convert to NumPy matrix
-    m,n = shape(dataMatrix)
+    m, n = shape(dataMatrix)
+    print m, n, dataMatrix
     alpha = 0.001                           # 步长
     maxCycles = 500                         # 循环次数
-    weights = ones((n,1))                   # 回归系数初始化为 1
+    weights = ones((n, 1))                   # 回归系数初始化为 1
 
     # 循环 maxCycles 次, 每次都沿梯度向真实值 labelMat 靠拢
     for k in range(maxCycles):              # heavy on matrix operations
         h = sigmoid(dataMatrix*weights)     # matrix mult
         error = (labelMat - h)              # vector subtraction
         # dataMatrix.transpose()* error 就是梯度f(w)
-        weights = weights + alpha * dataMatrix.transpose()* error # matrix mult
+        weights = weights + alpha * dataMatrix.transpose() * error  # matrix mult
     return weights
 
 
@@ -50,16 +52,21 @@ def gradAscent(dataMatIn, classLabels):
 def plotBestFit(weights):
     import matplotlib.pyplot as plt
     # 画点
-    dataMat,labelMat=loadDataSet()
+    dataMat, labelMat = loadDataSet()
     dataArr = array(dataMat)
     n = shape(dataArr)[0]
-    xcord1 = []; ycord1 = []
-    xcord2 = []; ycord2 = []
+    xcord1 = []
+    ycord1 = []
+
+    xcord2 = []
+    ycord2 = []
     for i in range(n):
-        if int(labelMat[i])== 1:
-            xcord1.append(dataArr[i,1]); ycord1.append(dataArr[i,2])
+        if int(labelMat[i]) == 1:
+            xcord1.append(dataArr[i, 1])
+            ycord1.append(dataArr[i, 2])
         else:
-            xcord2.append(dataArr[i,1]); ycord2.append(dataArr[i,2])
+            xcord2.append(dataArr[i, 1])
+            ycord2.append(dataArr[i, 2])
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.scatter(xcord1, ycord1, s=30, c='red', marker='s')
@@ -70,11 +77,12 @@ def plotBestFit(weights):
     # 根据公式 0 = W0*X0 + W1*X1 + W2*X2 及 X0 = 1
     x2 = (-weights[0]-weights[1]*x1)/weights[2]
     ax.plot(x1, x2)
-    plt.xlabel('X1'); plt.ylabel('X2');
+    plt.xlabel('X1')
+    plt.ylabel('X2')
 
     # 显示
     plt.show()
-    # plt.savefig('myfilename.png')
+
 
 if __name__ == "__main__":
     dataAttr, labelMat = loadDataSet()
