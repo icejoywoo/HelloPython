@@ -7,7 +7,6 @@ __author__ = 'icejoywoo'
 
 from math import *
 from numpy import *
-import matplotlib.pyplot as plt
 
 # 加载数据, 前两列是点所属的 X1, X2 坐标, 最后一列是该点所属分类
 def loadDataSet():
@@ -34,8 +33,9 @@ def gradAscent(dataMatIn, classLabels):
     dataMatrix = mat(dataMatIn)             # convert to NumPy matrix
     labelMat = mat(classLabels).transpose() # convert to NumPy matrix
     m, n = shape(dataMatrix)
+    print m, n, dataMatrix
     alpha = 0.001                           # 步长
-    maxCycles = 100                         # 循环次数
+    maxCycles = 500                         # 循环次数
     weights = ones((n, 1))                   # 回归系数初始化为 1
 
     # 循环 maxCycles 次, 每次都沿梯度向真实值 labelMat 靠拢
@@ -44,14 +44,13 @@ def gradAscent(dataMatIn, classLabels):
         error = (labelMat - h)              # vector subtraction
         # dataMatrix.transpose()* error 就是梯度f(w)
         weights = weights + alpha * dataMatrix.transpose() * error  # matrix mult
-        if k % 10 == 0:
-            plotBestFit(weights.getA(), k)
     return weights
 
 
 # 1. 画出各个训练点
 # 2. 根据 weights(即回归的各个参数) 画出直线, 以便直观的看到划分是否正确
-def plotBestFit(weights, count=1):
+def plotBestFit(weights):
+    import matplotlib.pyplot as plt
     # 画点
     dataMat, labelMat = loadDataSet()
     dataArr = array(dataMat)
@@ -68,7 +67,7 @@ def plotBestFit(weights, count=1):
         else:
             xcord2.append(dataArr[i, 1])
             ycord2.append(dataArr[i, 2])
-    fig = plt.figure(count)
+    fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.scatter(xcord1, ycord1, s=30, c='red', marker='s')
     ax.scatter(xcord2, ycord2, s=30, c='green')
@@ -81,9 +80,11 @@ def plotBestFit(weights, count=1):
     plt.xlabel('X1')
     plt.ylabel('X2')
 
+    # 显示
+    plt.show()
+
+
 if __name__ == "__main__":
     dataAttr, labelMat = loadDataSet()
     weights = gradAscent(dataAttr, labelMat)
-    plotBestFit(weights.getA(), 1)
-    # 显示
-    plt.show()
+    plotBestFit(weights.getA())
