@@ -8,6 +8,7 @@ __author__ = 'icejoywoo'
 from math import *
 from numpy import *
 
+
 # 加载数据, 前两列是点所属的 X1, X2 坐标, 最后一列是该点所属分类
 def loadDataSet():
     dataMat = []
@@ -25,23 +26,23 @@ def loadDataSet():
 
 # sigmoid 函数
 def sigmoid(inX):
-    return 1.0/(1+exp(-inX))
+    return 1.0 / (1 + exp(-inX))
 
 
 # 梯度上升算法计算出最佳回归系数
 def gradAscent(dataMatIn, classLabels):
-    dataMatrix = mat(dataMatIn)             # convert to NumPy matrix
-    labelMat = mat(classLabels).transpose() # convert to NumPy matrix
+    dataMatrix = mat(dataMatIn)              # convert to NumPy matrix
+    labelMat = mat(classLabels).transpose()  # convert to NumPy matrix
     m, n = shape(dataMatrix)
     print m, n, dataMatrix
-    alpha = 0.001                           # 步长
-    maxCycles = 500                         # 循环次数
+    alpha = 0.001                            # 步长
+    maxCycles = 500                          # 循环次数
     weights = ones((n, 1))                   # 回归系数初始化为 1
 
     # 循环 maxCycles 次, 每次都沿梯度向真实值 labelMat 靠拢
-    for k in range(maxCycles):              # heavy on matrix operations
-        h = sigmoid(dataMatrix*weights)     # matrix mult
-        error = (labelMat - h)              # vector subtraction
+    for k in range(maxCycles):               # heavy on matrix operations
+        h = sigmoid(dataMatrix * weights)     # matrix mult
+        error = (labelMat - h)                # vector subtraction
         # dataMatrix.transpose()* error 就是梯度f(w)
         weights = weights + alpha * dataMatrix.transpose() * error  # matrix mult
     return weights
@@ -75,7 +76,7 @@ def plotBestFit(weights):
     # 画线
     x1 = arange(-3.0, 3.0, 0.1)   # x1 取值区间为 [-3.0, 3.0), 步长为 0.1
     # 根据公式 0 = W0*X0 + W1*X1 + W2*X2 及 X0 = 1
-    x2 = (-weights[0]-weights[1]*x1)/weights[2]
+    x2 = (-weights[0] - weights[1] * x1) / weights[2]
     ax.plot(x1, x2)
     plt.xlabel('X1')
     plt.ylabel('X2')
