@@ -6,7 +6,7 @@
 
 __author__ = 'icejoywoo'
 import sys
-
+from guppy import hpy
 
 class Person_(object):
     __slots__ = ("name", "age", "gender")
@@ -27,13 +27,25 @@ if __name__ == "__main__":
     n = NoSlots()
 
     class WithSlots(object):
-        __slots__ = 'a', 'b', 'c'
+        __slots__ = 'a', 'b', 'c', 'd', 'e', 'f'
+
+
 
     w = WithSlots()
-    n.a = n.b = n.c = 23
-    w.a = w.b = w.c = 23
+    n.a, n.b, n.c, n.d, n.e, n.f = 1, 2, 23, 4, 5, 6
+    w.a, w.b, w.c, w.d, w.e, w.f = 1, 2, 23, 4, 5, 6
     print sys.getsizeof(n)
     print sys.getsizeof(w)
+
+    import collections
+    s = collections.namedtuple("s", "a,b,c")
+    s.a, s.b, s.c = 1, 2, 23
+    l = []
+    l.append(1)
+    l.append(2)
+    l.append(23)
+    print sys.getsizeof(s)
+    print sys.getsizeof(l)
 
     persons = []
     for i in xrange(100000):
@@ -53,3 +65,6 @@ if __name__ == "__main__":
 
     print "size without slots: %d" % sum([sys.getsizeof(p) for p in persons])
     print "size with slots: %d" % sum([sys.getsizeof(p) for p in persons_])
+
+    h = hpy()
+    print h.heap()
