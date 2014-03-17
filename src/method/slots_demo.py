@@ -8,6 +8,7 @@ __author__ = 'icejoywoo'
 import sys
 from guppy import hpy
 
+
 class Person_(object):
     __slots__ = ("name", "age", "gender")
 
@@ -28,8 +29,6 @@ if __name__ == "__main__":
 
     class WithSlots(object):
         __slots__ = 'a', 'b', 'c', 'd', 'e', 'f'
-
-
 
     w = WithSlots()
     n.a, n.b, n.c, n.d, n.e, n.f = 1, 2, 23, 4, 5, 6
