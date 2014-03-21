@@ -33,7 +33,7 @@ if __name__ == "__main__":
     w = WithSlots()
     n.a, n.b, n.c, n.d, n.e, n.f = 1, 2, 23, 4, 5, 6
     w.a, w.b, w.c, w.d, w.e, w.f = 1, 2, 23, 4, 5, 6
-    print sys.getsizeof(n)
+    print sys.getsizeof(n), sys.getsizeof(n.__dict__)
     print sys.getsizeof(w)
 
     import collections
@@ -63,6 +63,8 @@ if __name__ == "__main__":
         persons_.append(p)
 
     print "size without slots: %d" % sum([sys.getsizeof(p) for p in persons])
+    print "size of the __dict__ without slots: %d" % sum([sys.getsizeof(p.__dict__) for p in persons])
+    print "size of the __weakref__ without slots: %d" % sum([sys.getsizeof(p.__weakref__) for p in persons])
     print "size with slots: %d" % sum([sys.getsizeof(p) for p in persons_])
 
     h = hpy()
