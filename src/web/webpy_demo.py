@@ -10,7 +10,8 @@ import web
 urls = (
     '/', 'index',
     '/add', 'add',
-    '/upload', 'upload'
+    '/upload', 'upload',
+    '/data(\.json)', 'data',
 )
 
 
