@@ -4,7 +4,6 @@
 
 __author__ = 'wujiabin'
 
-import sys
 # from multiprocessing.dummy import Pool
 from multiprocessing import Pool
 import time
@@ -29,15 +28,15 @@ def test2(i):
     pool.join()
     return results
 
-if __name__=="__main__":
+if __name__ == "__main__":
     i = range(10)
 
     start = time.time()
     print test1(i)
     end = time.time()
-    print end-start
+    print end - start
 
     start = time.time()
     print test2(i)
     end = time.time()
-    print end-start
+    print end - start
