@@ -11,7 +11,9 @@ install:
     - pip install -q pep8
 before_script:
     - "rm -f .coverage coverage.xml"
-    - "pep8 --exclude=migrations --ignore=E501,E225 src"
+    # http://pep8.readthedocs.org/en/latest/intro.html#error-codes
+    # autopep8 --select="E1,E2,E3,W1,W2,W3" --in-place --aggressive --aggressive <filename>
+    - "pep8 --exclude=migrations --ignore=E501 src"
 script:
     - nosetests -s --with-coverage --with-xunit --cover-erase --xunit-file=coverage.xml
     - coverage report

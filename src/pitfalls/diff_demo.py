@@ -22,9 +22,10 @@ from pprint import pprint
 d = Differ()
 result = d.compare(text1, text2)
 pprint(list(d.compare(text1, text2)))
+pprint(list(d.compare(text1, text1)))
 
 s = SequenceMatcher(a=text1, b=text2)
 print s.ratio()
-
+print s.get_opcodes()
 for tag, alo, ahi, blo, bhi in s.get_opcodes():
     print tag
