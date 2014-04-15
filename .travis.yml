@@ -13,7 +13,7 @@ before_script:
     - "rm -f .coverage coverage.xml"
     # http://pep8.readthedocs.org/en/latest/intro.html#error-codes
     # autopep8 --select="E1,E2,E3,W1,W2,W3" --in-place --aggressive --aggressive <filename>
-    - "pep8 --exclude=migrations --ignore=E501 src"
+    - "pep8 --exclude=migrations --ignore=E501,E265 src"
 script:
     - nosetests -s --with-coverage --with-xunit --cover-erase --xunit-file=coverage.xml
     - coverage report
