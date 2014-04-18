@@ -18,6 +18,8 @@ class Closer:
         return self.obj  # bound to target
 
     def __exit__(self, exception_type, exception_val, trace):
+        if exception_type:
+            pass  # do with exception
         try:
             self.obj.close()
         except AttributeError:  # obj isn't closable
@@ -28,6 +30,7 @@ class Closer:
 if __name__ == "__main__":
     with Closer(file(__file__)) as f:
         print [line for line in f]
+        #raise Exception("sss")
     assert f.closed is True
 
     with Closer(5) as a:
