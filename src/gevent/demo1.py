@@ -1,3 +1,6 @@
+#!/bin/env python
+# encoding: utf-8
+
 __author__ = 'icejoywoo'
 
 # http://xlambda.com/gevent-tutorial/
