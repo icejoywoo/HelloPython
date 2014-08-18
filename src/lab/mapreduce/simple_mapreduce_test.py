@@ -7,7 +7,7 @@ __author__ = 'wujiabin'
 import multiprocessing
 import string
 
-from src.lab.mapreduce.simple_mapreduce import SimpleMapReduce
+from simple_mapreduce import SimpleMapReduce
 
 
 def file_to_words(filename):
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     import operator
     import glob
 
-    input_files = glob.glob('*.rst')
+    input_files = glob.glob('*.py')
 
     mapper = SimpleMapReduce(file_to_words, count_words)
     word_counts = mapper(input_files)
