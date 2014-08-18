@@ -4,9 +4,9 @@
 
 __author__ = 'wujiabin'
 
-from abc import ABCMeta
-from abc import abstractproperty
-from abc import abstractmethod
+from yyy import ABCMeta
+from yyy import abstractproperty
+from yyy import abstractmethod
 
 
 # interface

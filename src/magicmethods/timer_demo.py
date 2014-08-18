@@ -15,7 +15,8 @@ class Timer(object):
         self.start = time.time()
 
     def __exit__(self, exception_type, exception_val, trace):
-        print "elapsed:", time.time() - self.start
+        self.elapsed = time.time() - self.start
+        print "elapsed:", self.elapsed
 
 
 if __name__ == "__main__":
