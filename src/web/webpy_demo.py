@@ -44,7 +44,7 @@ class upload:
 
 app = web.application(urls, globals())
 render = web.template.render('templates/')
-#db = web.database(dbn='sqlite', db=":memory:")
+# db = web.database(dbn='sqlite', db=":memory:")
 db = web.database(dbn='sqlite', db="sqlite.db")
 
 conn = db._db_cursor().connection

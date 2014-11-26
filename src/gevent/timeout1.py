@@ -8,8 +8,10 @@ seconds = 10
 timeout = Timeout(seconds)
 timeout.start()
 
+
 def wait():
     gevent.sleep(10)
+
 
 try:
     gevent.spawn(wait).join()

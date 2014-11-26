@@ -15,6 +15,7 @@ import heapq
 
 Keyed = namedtuple("Keyed", ["key", "obj"])
 
+
 def merge(key=None, *iterables):
     # based on code posted by Scott David Daniels in c.l.p.
     # http://groups.google.com/group/comp.lang.python/msg/484f01f1ea3c832d
@@ -23,7 +24,7 @@ def merge(key=None, *iterables):
         keyed_iterables = iterables
     else:
         keyed_iterables = [(Keyed(key(obj), obj) for obj in iterable)
-                            for iterable in iterables]
+                           for iterable in iterables]
     for element in heapq.merge(*keyed_iterables):
         yield element.obj
 
@@ -36,19 +37,19 @@ def batch_sort(input, output, key=None, buffer_size=32000, tempdirs=None):
 
     chunks = []
     try:
-        with open(input,'rb',64*1024) as input_file:
+        with open(input, 'rb', 64 * 1024) as input_file:
             input_iterator = iter(input_file)
             for tempdir in cycle(tempdirs):
-                current_chunk = list(islice(input_iterator,buffer_size))
+                current_chunk = list(islice(input_iterator, buffer_size))
                 if not current_chunk:
                     break
                 current_chunk.sort(key=key)
-                output_chunk = open(os.path.join(tempdir,'%06i'%len(chunks)),'w+b',64*1024)
+                output_chunk = open(os.path.join(tempdir, '%06i' % len(chunks)), 'w+b', 64 * 1024)
                 chunks.append(output_chunk)
                 output_chunk.writelines(current_chunk)
                 output_chunk.flush()
                 output_chunk.seek(0)
-        with open(output,'wb',64*1024) as output_file:
+        with open(output, 'wb', 64 * 1024) as output_file:
             output_file.writelines(merge(key, *chunks))
     finally:
         for chunk in chunks:
@@ -61,23 +62,24 @@ def batch_sort(input, output, key=None, buffer_size=32000, tempdirs=None):
 
 if __name__ == '__main__':
     import optparse
+
     parser = optparse.OptionParser()
     parser.add_option(
-        '-b','--buffer',
+        '-b', '--buffer',
         dest='buffer_size',
-        type='int',default=32000,
+        type='int', default=32000,
         help='''Size of the line buffer. The file to sort is
             divided into chunks of that many lines. Default : 32,000 lines.'''
     )
     parser.add_option(
-        '-k','--key',
+        '-k', '--key',
         dest='key',
         help='''Python expression used to compute the key for each
             line, "lambda line:" is prepended.\n
             Example : -k "line[5:10]". By default, the whole line is the key.'''
     )
     parser.add_option(
-        '-t','--tempdir',
+        '-t', '--tempdir',
         dest='tempdirs',
         action='append',
         default=[],
@@ -88,19 +90,20 @@ if __name__ == '__main__':
             Use multiple -t options to do that.'''
     )
     parser.add_option(
-        '-p','--psyco',
+        '-p', '--psyco',
         dest='psyco',
         action='store_true',
         default=False,
         help='''Use Psyco.'''
     )
-    options,args = parser.parse_args()
+    options, args = parser.parse_args()
 
     if options.key:
-        options.key = eval('lambda line : (%s)'%options.key)
+        options.key = eval('lambda line : (%s)' % options.key)
 
     if options.psyco:
         import psyco
+
         psyco.full()
 
-    batch_sort(args[0],args[1],options.key,options.buffer_size,options.tempdirs)
+    batch_sort(args[0], args[1], options.key, options.buffer_size, options.tempdirs)

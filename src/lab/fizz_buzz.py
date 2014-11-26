@@ -1,5 +1,5 @@
 #!/bin/env python
-#^_^ encoding: utf-8 ^_^
+# ^_^ encoding: utf-8 ^_^
 # @date: 14-2-14
 
 __author__ = 'wujiabin'

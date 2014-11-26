@@ -1,5 +1,5 @@
 #!/bin/env python
-#^_^ encoding: utf-8 ^_^
+# ^_^ encoding: utf-8 ^_^
 # @date: 14-2-13
 
 __author__ = 'wujiabin'
@@ -23,6 +23,7 @@ class Timer(object):
 def main():
     for _ in xrange(10 ** 8):
         pass
+
 
 with Timer():
     main()

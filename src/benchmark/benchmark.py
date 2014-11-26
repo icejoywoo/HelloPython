@@ -76,7 +76,7 @@ class Benchmark(object):
                              sum(latencies) / len(latencies))
                     self.total_reporter += self.reporter
                     self.reporter = []
-            # print summary
+                    # print summary
         self.summary()
 
     def stop(self):

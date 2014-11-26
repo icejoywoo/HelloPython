@@ -16,7 +16,7 @@ class Word(str):
             word = word[:word.index(' ')]  # Word is now all chars before first space
         return str.__new__(cls, word)
 
-    #    def __eq__(self, other):
+    # def __eq__(self, other):
     #        return len(self) == len(other)
     #    def __ne__(self, other):
     #        return len(self) != len(other)

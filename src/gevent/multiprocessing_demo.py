@@ -1,8 +1,10 @@
 __author__ = 'icejoywoo'
 
-import gevent
 from multiprocessing import Process, Pipe
+
+import gevent
 from gevent.socket import wait_read, wait_write
+
 
 # To Process
 a, b = Pipe()
@@ -10,20 +12,24 @@ a, b = Pipe()
 # From Process
 c, d = Pipe()
 
+
 def relay():
     for i in xrange(10):
         msg = b.recv()
         c.send(msg + " in " + str(i))
+
 
 def put_msg():
     for i in xrange(10):
         wait_write(a.fileno())
         a.send('hi')
 
+
 def get_msg():
     for i in xrange(10):
         wait_read(d.fileno())
         print(d.recv())
+
 
 if __name__ == '__main__':
     proc = Process(target=relay)

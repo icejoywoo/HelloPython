@@ -21,7 +21,7 @@ def bar():
 
 
 # gevent.joinall([
-#     gevent.spawn(foo),
+# gevent.spawn(foo),
 #     gevent.spawn(bar),
 # ])
 

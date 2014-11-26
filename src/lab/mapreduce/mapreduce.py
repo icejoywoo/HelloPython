@@ -8,7 +8,6 @@ import multiprocessing
 
 
 class MapReduceJob(object):
-
     def __init__(self, mapper, reducer, **kwargs):
         self._mapper = mapper
         self._reducer = reducer

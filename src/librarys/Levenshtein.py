@@ -1,5 +1,5 @@
 #!/bin/env python
-#^_^ encoding: utf-8 ^_^
+# ^_^ encoding: utf-8 ^_^
 # @date: 14-3-12
 
 __author__ = 'wujiabin'
@@ -42,10 +42,13 @@ def strcmp(s, t):
     #第七步
     return v1[m]
 
+
 if __name__ == '__main__':
     print strcmp("GUMBO", "GAMBOL")
     print strcmp(u"我爱你中国", u"我爱共产党")
     print strcmp("mobile_predict_flow_online_2014-03-11121414/diff_id_20140310",
-                 "mobile_predict_flow_online_2014-03-11121414_interest_step3_predict") * 1.0 / len("mobile_predict_flow_online_2014-03-11121414_interest_step3_predict")
+                 "mobile_predict_flow_online_2014-03-11121414_interest_step3_predict") * 1.0 / len(
+        "mobile_predict_flow_online_2014-03-11121414_interest_step3_predict")
     print strcmp("mobile_predict_flow_online_2014-03-10212124/diff_id_20140309",
-                 "mobile_predict_flow_online_2014-03-11121414/diff_id_20140310") * 1.0 / len("mobile_predict_flow_online_2014-03-11121414/diff_id_20140310")
+                 "mobile_predict_flow_online_2014-03-11121414/diff_id_20140310") * 1.0 / len(
+        "mobile_predict_flow_online_2014-03-11121414/diff_id_20140310")

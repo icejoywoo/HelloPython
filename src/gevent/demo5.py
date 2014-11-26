@@ -2,6 +2,7 @@ __author__ = 'icejoywoo'
 
 import time
 
+
 def echo(i):
     time.sleep(0.001)
     return i

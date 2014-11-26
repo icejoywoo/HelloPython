@@ -3,8 +3,10 @@ __author__ = 'icejoywoo'
 import gevent
 from gevent import Timeout
 
+
 def wait():
     gevent.sleep(2)
+
 
 timer = Timeout(1).start()
 thread1 = gevent.spawn(wait)

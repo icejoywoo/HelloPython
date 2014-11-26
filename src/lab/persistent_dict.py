@@ -33,11 +33,11 @@ class DBDict(collections.MutableMapping):
         self.db = sqlite3.connect(db_filename)
         self.db.text_factory = str
         try:
-            self.db.execute('CREATE TABLE dict (key text PRIMARY KEY, value text)')
+            self.db.execute('CREATE TABLE dict (key TEXT PRIMARY KEY, value TEXT)')
             self.db.execute('CREATE INDEX key ON dict (key)')
             self.db.commit()
         except sqlite3.OperationalError:
-            pass                # DB already exists
+            pass  # DB already exists
         self.update(kwds)
 
     def __setitem__(self, key, value):
@@ -70,9 +70,11 @@ class DBDict(collections.MutableMapping):
     def __len__(self):
         return len(list(iter(self)))
 
+
 if __name__ == "__main__":
     d = DBDict(db_filename='sqlite3.db')
     d.update(dict(zip(("key_%d" % i for i in xrange(1000)), ("value_%d" % i for i in xrange(1000)))))
     print d
     from profile import run
+
     run('for ii in xrange(1000): x = d["key_%d" % ii]')
