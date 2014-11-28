@@ -3,9 +3,11 @@ __author__ = 'icejoywoo'
 import gevent
 from gevent.pool import Group
 
+
 def talk(msg):
     for i in xrange(3):
         print(msg)
+
 
 g1 = gevent.spawn(talk, 'bar')
 g2 = gevent.spawn(talk, 'foo')

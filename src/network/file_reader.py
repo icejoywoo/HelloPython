@@ -1,5 +1,5 @@
 #!/bin/env python
-#^_^ encoding: utf-8 ^_^
+# ^_^ encoding: utf-8 ^_^
 # @date: 14-7-2
 
 __author__ = 'wujiabin'
@@ -7,8 +7,8 @@ __author__ = 'wujiabin'
 import asyncore
 import os
 
-class FileReader(asyncore.file_dispatcher):
 
+class FileReader(asyncore.file_dispatcher):
     def writable(self):
         return False
 
@@ -22,6 +22,7 @@ class FileReader(asyncore.file_dispatcher):
 
     def handle_close(self):
         self.close()
+
 
 lorem_fd = os.open('lorem.txt', os.O_RDONLY)
 reader = FileReader(lorem_fd)

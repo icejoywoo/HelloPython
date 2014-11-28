@@ -1,12 +1,11 @@
 #!/bin/env python
-#^_^ encoding: utf-8 ^_^
+# ^_^ encoding: utf-8 ^_^
 # @date: 14-2-28
 
 __author__ = 'wujiabin'
 
 
 class FancyDict(dict):
-
     @classmethod
     def fromkeys(cls, keys, value=None):
         data = {(key, value) for key in keys}  # set comprehension

@@ -1,5 +1,5 @@
 #!/bin/env python
-#^_^ encoding: utf-8 ^_^
+# ^_^ encoding: utf-8 ^_^
 # @date: 14-2-18
 
 __author__ = 'wujiabin'
@@ -12,6 +12,7 @@ def mapper():
         # do something with line
         time.sleep(.1)
         yield line
+
 
 if __name__ == "__main__":
     print mapper()

@@ -2,7 +2,9 @@ __author__ = 'icejoywoo'
 
 import gevent
 from gevent.event import AsyncResult
+
 a = AsyncResult()
+
 
 def setter():
     """
@@ -11,12 +13,14 @@ def setter():
     gevent.sleep(3)
     a.set('Hello!')
 
+
 def waiter():
     """
     After 3 seconds the get call will unblock after the setter
     puts a value into the AsyncResult.
     """
     print(a.get())
+
 
 gevent.joinall([
     gevent.spawn(setter),

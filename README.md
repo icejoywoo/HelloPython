@@ -9,3 +9,6 @@ Simple Python demos
 
 导出名人名言的库
 http://www.rate9.com/
+
+TWISTED INTRODUCTION
+http://krondo.com/?page_id=1327

@@ -30,7 +30,7 @@ class Closer:
 if __name__ == "__main__":
     with Closer(file(__file__)) as f:
         print [line for line in f]
-        #raise Exception("sss")
+        # raise Exception("sss")
     assert f.closed is True
 
     with Closer(5) as a:

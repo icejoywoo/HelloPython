@@ -1,5 +1,5 @@
 #!/bin/env python
-#^_^ encoding: utf-8 ^_^
+# ^_^ encoding: utf-8 ^_^
 # @date: 14-1-9
 # http://blog.jobbole.com/54707/
 
@@ -49,6 +49,7 @@ class NGram(object):
         the best match.
         """
         return min(languages, key=lambda n: self - n)
+
 
 if __name__ == "__main__":
     english = NGram("""My dear Alicia,--You are very good in taking notice of Frederica, and

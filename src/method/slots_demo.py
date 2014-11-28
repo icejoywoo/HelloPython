@@ -6,6 +6,7 @@
 
 __author__ = 'icejoywoo'
 import sys
+
 from guppy import hpy
 
 
@@ -37,6 +38,7 @@ if __name__ == "__main__":
     print sys.getsizeof(w)
 
     import collections
+
     s = collections.namedtuple("s", "a,b,c")
     s.a, s.b, s.c = 1, 2, 23
     l = []

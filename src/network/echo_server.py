@@ -1,11 +1,12 @@
 #!/bin/env python
-#^_^ encoding: utf-8 ^_^
+# ^_^ encoding: utf-8 ^_^
 # @date: 14-7-2
 
 __author__ = 'wujiabin'
 
 import asyncore
 import logging
+
 
 class EchoServer(asyncore.dispatcher):
     """Receives connections and establishes handlers for each client.
@@ -38,6 +39,7 @@ class EchoServer(asyncore.dispatcher):
         self.logger.debug('handle_close()')
         self.close()
         return
+
 
 class EchoHandler(asyncore.dispatcher):
     """Handles echoing messages from a single client.
@@ -128,12 +130,11 @@ if __name__ == '__main__':
     import socket
 
     logging.basicConfig(level=logging.DEBUG,
-                        format='%(name)s: %(message)s',
-                        )
+                        format='%(name)s: %(message)s')
 
-    address = ('localhost', 0) # let the kernel give us a port
+    address = ('localhost', 0)  # let the kernel give us a port
     server = EchoServer(address)
-    ip, port = server.address # find out what port we were given
+    ip, port = server.address  # find out what port we were given
 
     client = EchoClient(ip, port, message=open(__file__, 'r').read())
 
