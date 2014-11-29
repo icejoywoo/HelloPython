@@ -8,6 +8,21 @@ import sqlparse
 import sqlparse.sql
 from sqlparse import tokens
 
+import datetime
+
+
+def sql_date(date_str):
+    return datetime.datetime.strptime(date_str, "%Y-%m-%d")
+
+built_in_var_and_funcs = {
+    'Date': sql_date,
+    'ISODate': sql_date
+}
+
+
+def sql_eval(str_to_be_evaled):
+    return eval(str_to_be_evaled, built_in_var_and_funcs)
+
 
 def is_subselect(parsed):
     if not parsed.is_group():
@@ -26,7 +41,12 @@ def is_where(parsed):
 
 
 def is_comparison(parsed):
-    return isinstance(parsed, sqlparse.sql.Comparison)
+    if isinstance(parsed, sqlparse.sql.Comparison):
+        return True
+    elif isinstance(parsed, sqlparse.sql.Token) and parsed.ttype is tokens.Comparison:
+        return True
+    else:
+        return False
 
 
 def transfer_in_operation(parsed, idx):
@@ -60,12 +80,12 @@ def transfer_in_operation(parsed, idx):
         return token, token_idx
 
     # 前面是否有not
-    prev_token, idx = get_token(parsed, idx, direction='backward')
-    if prev_token.ttype is tokens.Keyword and prev_token.value.upper() == 'NOT':
+    left_token, idx = get_token(parsed, idx, direction='backward')
+    if left_token.ttype is tokens.Keyword and left_token.value.upper() == 'NOT':
         operator = 'not ' + operator
         field_token = get_token(parsed, idx, direction='backward')[0].value
     else:
-        field_token = prev_token.value
+        field_token = left_token.value
 
     right_token = get_token(parsed, in_idx, direction='forward')[0]
     right_value = None
@@ -76,12 +96,12 @@ def transfer_in_operation(parsed, idx):
             # 去除两边的括号
             right_value = transfer_sql(right_token.value[1:-1])
     else:
-        right_value = eval(right_token)
+        right_value = sql_eval(right_token)
 
     return {field_token: {in_operators[operator]: right_value}}
 
 
-def transfer_comparison(parsed):
+def transfer_comparison(parent, parsed):
     """ 是一个token表示的
     @param parsed:
     @return:
@@ -98,26 +118,54 @@ def transfer_comparison(parsed):
     }
     left_field = None
     right_value = None
-    print parsed.tokens
-    for t in parsed.tokens:
-        if isinstance(t, sqlparse.sql.Identifier) or (isinstance(t, sqlparse.sql.Token)
-                                                      and t.ttype in (tokens.Literal.Number.Integer, )):
-            if t.is_whitespace():
-                continue
-            if left_field is None:
-                left_field = t.value
-            elif right_value is None:
-                # 右值可以是python表达式
-                right_value = eval(t.value)
-            else:
-                raise Exception("Error")
-        elif t.ttype is tokens.Operator.Comparison:
-            operator = comparison_operators[t.value]
+    if isinstance(parsed, sqlparse.sql.Comparison):
+        for t in parsed.tokens:
+            if isinstance(t, sqlparse.sql.Identifier) or (isinstance(t, sqlparse.sql.Token)
+                                                          and t.ttype in (tokens.Literal.Number.Integer, )):
+                if t.is_whitespace():
+                    continue
+                if left_field is None:
+                    left_field = t.value
+                elif right_value is None:
+                    # 右值可以是python表达式
+                    right_value = sql_eval(t.value)
+                else:
+                    raise Exception("Error")
+            elif t.ttype is tokens.Operator.Comparison:
+                operator = comparison_operators[t.value]
 
-    return {left_field: {operator: right_value}}
+        return {left_field: {operator: right_value}}
+    elif isinstance(parsed, sqlparse.sql.Token) and parsed.ttype is tokens.Comparison:
+        operator = comparison_operators[parsed.value]
+        idx = parent.token_index(parsed)
+
+        def get_token(parsed, index, direction):
+            def update_index(i):
+                if direction == 'forward':
+                    return i + 1
+                elif direction == 'backward':
+                    return i - 1
+                else:
+                    raise Exception("Unsupported direction.")
+            token_idx = update_index(index)
+            token = parsed.tokens[token_idx]
+            # ignore the Whitespace
+            while token.ttype in (tokens.Whitespace, tokens.Punctuation):
+                token_idx = update_index(token_idx)
+                token = parsed.tokens[token_idx]
+            return token
+
+        prev_token = get_token(parent, idx, direction='backward')
+        next_token = get_token(parent, idx, direction='forward')
+
+        field = prev_token.value
+        value = sql_eval(next_token.value)
+
+        return {field: {operator: value}}
 
 
 def transfer_sql(sql):
+    # 去除sql两边的空白字符
     sql = sql.strip()
     dbs = []
     query = {}
@@ -139,7 +187,8 @@ def transfer_sql(sql):
                 select_seen = True
             else:
                 if is_subselect(t):
-                    print t.tokens
+                    #print t.tokens
+                    pass
 
                 # 处理where语句
                 if is_where(t):
@@ -167,9 +216,10 @@ def transfer_sql(sql):
                                 query[operator] = [last_comparison]
 
                         elif is_comparison(i):
-                            last_comparison = transfer_comparison(i)
+                            comparison = transfer_comparison(t, i)
                             if operator:
-                                query[operator].append(transfer_comparison(i))
+                                query[operator].append(comparison)
+                            last_comparison = comparison
                         elif i.ttype is tokens.Keyword and i.value.upper() == 'IN':
                             if operator:
                                 query[operator].append(transfer_in_operation(t, t.token_index(i)))
@@ -206,8 +256,9 @@ if __name__ == '__main__':
     # sql = """select * from foo where a = 1 and b != "xxx" or uid not in ("1", "2") and c in (3, 4)"""
     print transfer_sql(sql)
 
-    sql = """ select uid from bar where a = 1 and $log_date = Date("2014-11-19") """
-    print sqlparse.parse(sql)[0].tokens[-2].tokens
-    t = sqlparse.parse(sql)[0].tokens[-2].tokens[6]
-    print t, type(t), t.ttype
+    sql = """ select uid from bar where a = 1 and log_date = Date("2014-11-19") """
+    #print sqlparse.parse(sql)[0].tokens[-2].tokens
+    t = sqlparse.parse(sql)[0].tokens[-2].tokens[8]
+    #print t, type(t), t.ttype
+    print transfer_sql(sql)
 
