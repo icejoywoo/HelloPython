@@ -9,7 +9,6 @@ import sqlparse.sql
 from sqlparse import tokens
 
 import itertools
-
 import datetime
 
 
