@@ -8,20 +8,51 @@ import sqlparse
 import sqlparse.sql
 from sqlparse import tokens
 
+import itertools
+
 import datetime
 
 
 def sql_date(date_str):
     return datetime.datetime.strptime(date_str, "%Y-%m-%d")
 
+yesterday = datetime.datetime.combine(datetime.datetime.now(), datetime.time()) - datetime.timedelta(days=1)
+
 built_in_var_and_funcs = {
     'Date': sql_date,
-    'ISODate': sql_date
+    'ISODate': sql_date,
+    '$yesterday': yesterday,
 }
 
 
 def sql_eval(str_to_be_evaled):
+    str_to_be_evaled = str_to_be_evaled.strip()
+    if str_to_be_evaled.startswith('$'):
+        return built_in_var_and_funcs[str_to_be_evaled]
     return eval(str_to_be_evaled, built_in_var_and_funcs)
+
+
+def get_token(parsed, index, direction):
+    """
+    @param parsed:
+    @param index:
+    @param direction:
+    @return:
+    """
+    def update_index(i):
+        if direction == 'forward':
+            return i + 1
+        elif direction == 'backward':
+            return i - 1
+        else:
+            raise Exception("Unsupported direction.")
+    token_idx = update_index(index)
+    token = parsed.tokens[token_idx]
+    # ignore the Whitespace
+    while token.ttype in (tokens.Whitespace, tokens.Punctuation):
+        token_idx = update_index(token_idx)
+        token = parsed.tokens[token_idx]
+    return token, token_idx
 
 
 def is_subselect(parsed):
@@ -45,8 +76,16 @@ def is_comparison(parsed):
         return True
     elif isinstance(parsed, sqlparse.sql.Token) and parsed.ttype is tokens.Comparison:
         return True
-    else:
-        return False
+    elif isinstance(parsed, sqlparse.sql.Parenthesis):
+        first_token = parsed.token_next_by_instance(0, sqlparse.sql.Comparison)
+        if first_token:
+            return True
+
+        first_token = parsed.token_next_by_type(0, tokens.Comparison)
+        if first_token:
+            return True
+
+    return False
 
 
 def transfer_in_operation(parsed, idx):
@@ -62,22 +101,6 @@ def transfer_in_operation(parsed, idx):
 
     in_idx = idx
     operator = parsed.tokens[idx].value
-
-    def get_token(parsed, index, direction):
-        def update_index(i):
-            if direction == 'forward':
-                return i + 1
-            elif direction == 'backward':
-                return i - 1
-            else:
-                raise Exception("Unsupported direction.")
-        token_idx = update_index(index)
-        token = parsed.tokens[token_idx]
-        # ignore the Whitespace
-        while token.ttype in (tokens.Whitespace, tokens.Punctuation):
-            token_idx = update_index(token_idx)
-            token = parsed.tokens[token_idx]
-        return token, token_idx
 
     # 前面是否有not
     left_token, idx = get_token(parsed, idx, direction='backward')
@@ -99,6 +122,30 @@ def transfer_in_operation(parsed, idx):
         right_value = sql_eval(right_token)
 
     return {field_token: {in_operators[operator]: right_value}}
+
+
+def transfer_between_operation(parsed, idx):
+    """
+    @param parsed:
+    @param idx:
+    @return:
+    """
+    between_token = parsed.tokens[idx]
+    field_token = parsed.token_prev(idx)
+
+    lower_token = parsed.token_next(idx)
+    lower_token_idx = parsed.token_index(lower_token)
+
+    in_token = parsed.token_next(lower_token_idx)
+    in_token_idx = parsed.token_index(in_token)
+
+    upper_token = parsed.token_next(in_token_idx)
+
+    lower_value = sql_eval(lower_token.value)
+    upper_value = sql_eval(upper_token.value)
+    field_name = field_token.value
+
+    return {field_name: {'$gte': lower_value, '$lte': upper_value}}
 
 
 def transfer_comparison(parent, parsed):
@@ -139,29 +186,84 @@ def transfer_comparison(parent, parsed):
         operator = comparison_operators[parsed.value]
         idx = parent.token_index(parsed)
 
-        def get_token(parsed, index, direction):
-            def update_index(i):
-                if direction == 'forward':
-                    return i + 1
-                elif direction == 'backward':
-                    return i - 1
-                else:
-                    raise Exception("Unsupported direction.")
-            token_idx = update_index(index)
-            token = parsed.tokens[token_idx]
-            # ignore the Whitespace
-            while token.ttype in (tokens.Whitespace, tokens.Punctuation):
-                token_idx = update_index(token_idx)
-                token = parsed.tokens[token_idx]
-            return token
-
-        prev_token = get_token(parent, idx, direction='backward')
-        next_token = get_token(parent, idx, direction='forward')
+        prev_token = get_token(parent, idx, direction='backward')[0]
+        next_token = get_token(parent, idx, direction='forward')[0]
 
         field = prev_token.value
         value = sql_eval(next_token.value)
 
         return {field: {operator: value}}
+    elif isinstance(parsed, sqlparse.sql.Parenthesis):
+        return transfer_where(parsed)
+
+
+def merge_query(query):
+    # [{'a': {'$gt': 10}}, {'a': {'$lt': 5}} ...] 合并为[{'a': {'$gt': 10, '$lt': 5}} ...]
+    print "a", query
+    merged_query = []
+    for k, v in itertools.groupby(query, key=lambda i: i.keys()[0]):
+        v = list(v)
+        if k in ('$and', '$or'):
+            assert len(v) == 1
+            print "b", v[0]
+            merged_query.append(v[0])
+            continue
+        for sk, sv in itertools.groupby(v, key=lambda i: i.keys()[0]):
+            sv = list(sv)
+            merged_subquery = {}
+            for i in sv:
+                merged_subquery.update(i.values()[0])
+            print "x", sk, merged_subquery
+            merged_query.append({sk: merged_subquery})
+            print "y", merged_query
+    return merged_query
+
+
+def transfer_where(parsed):
+    query = {}
+    # 一般第一个表达式之后才是and或or等操作符
+    last_comparison = None
+    operator = None
+    logical_operators = {
+        'AND': '$and',
+        'OR': '$or',
+    }
+    # 跳过第一个where关键字
+    for index, i in enumerate(parsed.tokens[1:]):
+        if i.is_whitespace():
+            continue
+        # and, or
+        if i.ttype is tokens.Keyword and i.value.upper() in logical_operators:
+            # 区分between and还是只有and
+            prev_token = parsed.token_prev(index)
+            prev_token = parsed.token_prev(parsed.token_index(prev_token))
+
+            if prev_token.ttype is tokens.Keyword and prev_token.value.upper() == 'BETWEEN':
+                continue
+
+            if not operator:
+                # 初始化
+                operator = logical_operators.get(i.value.upper(), None)
+                query[operator] = [last_comparison]
+            else:
+                new_operator = logical_operators.get(i.value.upper(), None)
+                last_query = query.pop(operator)
+                last_comparison = {operator: last_query}
+                operator = new_operator
+                query[operator] = [last_comparison]
+
+        elif is_comparison(i):
+            comparison = transfer_comparison(parsed, i)
+            if operator:
+                query[operator].append(comparison)
+            last_comparison = comparison
+        elif i.ttype is tokens.Keyword and i.value.upper() == 'IN':
+            if operator:
+                query[operator].append(transfer_in_operation(parsed, parsed.token_index(i)))
+        elif i.ttype is tokens.Keyword and i.value.upper() == 'BETWEEN':
+            if operator:
+                query[operator].append(transfer_between_operation(parsed, parsed.token_index(i)))
+    return query
 
 
 def transfer_sql(sql):
@@ -192,37 +294,7 @@ def transfer_sql(sql):
 
                 # 处理where语句
                 if is_where(t):
-                    # 一般第一个表达式之后才是and或or等操作符
-                    last_comparison = None
-                    operator = None
-                    logical_operators = {
-                        'AND': '$and',
-                        'OR': '$or',
-                    }
-                    # 跳过第一个where关键字
-                    for i in t.tokens[1:]:
-                        if i.is_whitespace():
-                            continue
-                        # and, or
-                        if i.ttype is tokens.Keyword and i.value.upper() in logical_operators:
-                            if not operator:
-                                # 初始化
-                                operator = logical_operators.get(i.value.upper(), None)
-                                query[operator] = [last_comparison]
-                            else:
-                                new_operator = logical_operators.get(i.value.upper(), None)
-                                last_comparison = {operator: query.pop(operator)}
-                                operator = new_operator
-                                query[operator] = [last_comparison]
-
-                        elif is_comparison(i):
-                            comparison = transfer_comparison(t, i)
-                            if operator:
-                                query[operator].append(comparison)
-                            last_comparison = comparison
-                        elif i.ttype is tokens.Keyword and i.value.upper() == 'IN':
-                            if operator:
-                                query[operator].append(transfer_in_operation(t, t.token_index(i)))
+                    query = transfer_where(t)
 
                 if from_seen:
                     if isinstance(t, sqlparse.sql.Identifier):
@@ -239,6 +311,11 @@ def transfer_sql(sql):
                         raise Exception('Wildcard(*) cannot be selected with other fields.')
                     elif t.ttype is tokens.Wildcard:
                         fields_wildcard = True
+                    elif isinstance(t, sqlparse.sql.IdentifierList):
+                        for identifier in t.get_identifiers():
+                            if identifier.ttype is tokens.Wildcard:
+                                raise Exception('Wildcard(*) cannot be selected with other fields.')
+                            fields[identifier.get_name()] = 1
                     else:
                         fields[t.value] = 1
     if len(dbs) != 1:
@@ -249,16 +326,14 @@ def transfer_sql(sql):
 if __name__ == '__main__':
 
     sql = """
-    select * from foo where a = 1 and b != 'xxx' or
-        uid in (select uid from bar where _ = ISODate("2014-11-19"))
+    select * from foo where a = 1 and (b != 'xxx' or
+        uid in (select uid from bar where _ = ISODate("2014-11-19")))
     """
 
     # sql = """select * from foo where a = 1 and b != "xxx" or uid not in ("1", "2") and c in (3, 4)"""
     print transfer_sql(sql)
 
-    sql = """ select uid from bar where a = 1 and log_date = Date("2014-11-19") """
-    #print sqlparse.parse(sql)[0].tokens[-2].tokens
-    t = sqlparse.parse(sql)[0].tokens[-2].tokens[8]
-    #print t, type(t), t.ttype
+    sql = """ select uid, c, d from bar where (a < 1 and a > 1 or b < 1) and log_date between Date("2014-11-19") and $yesterday """
+    print sqlparse.parse(sql)[0].tokens
     print transfer_sql(sql)
 
