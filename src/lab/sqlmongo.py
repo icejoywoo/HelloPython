@@ -6,7 +6,6 @@ __author__ = 'icejoywoo'
 
 import copy
 import datetime
-import itertools
 import sqlparse
 import sqlparse.sql
 from sqlparse import tokens
@@ -147,6 +146,36 @@ def transfer_between_operation(parsed, idx):
     return {field_name: {'$gte': lower_value, '$lte': upper_value}}
 
 
+def transfer_like_operation(parsed, idx):
+    like_token = parsed.tokens[idx]
+    if like_token.ttype is tokens.Keyword and like_token.value.upper() == 'LIKE':
+        field_token = parsed.token_prev(idx)
+        value_token = parsed.token_next(idx)
+
+        field_name = field_token.value
+        if value_token.ttype is tokens.Literal.String.Single:
+            # 去除两边的引号
+            value_name = value_token.value[1:-1]
+        else:
+            raise Exception("Must be string after `like`.")
+
+        # 只能在最前面和最后面使用%, 可以使用任意正则表达式
+        if value_name[0] != '%':
+            value_name = '^' + value_name
+        else:
+            value_name = value_name[1:]
+        if value_name[-1] != '%':
+            value_name = value_name[:-1] + '$'
+        else:
+            value_name = value_name[:-1]
+        if '%' in value_name:
+            raise Exception("% can appear only in begine or end of the string.")
+
+        return {field_name: {'$regex': value_name}}
+    else:
+        raise Exception("Not a like keyword.")
+
+
 def transfer_comparison(parent, parsed):
     """ 是一个token表示的
     @param parsed:
@@ -196,35 +225,13 @@ def transfer_comparison(parent, parsed):
         return transfer_where(parsed)
 
 
-def merge_query(query):
-    # [{'a': {'$gt': 10}}, {'a': {'$lt': 5}} ...] 合并为[{'a': {'$gt': 10, '$lt': 5}} ...]
-    print "a", query
-    merged_query = []
-    for k, v in itertools.groupby(query, key=lambda i: i.keys()[0]):
-        v = list(v)
-        if k in ('$and', '$or'):
-            assert len(v) == 1
-            print "b", v[0]
-            merged_query.append(v[0])
-            continue
-        for sk, sv in itertools.groupby(v, key=lambda i: i.keys()[0]):
-            sv = list(sv)
-            merged_subquery = {}
-            for i in sv:
-                merged_subquery.update(i.values()[0])
-            print "x", sk, merged_subquery
-            merged_query.append({sk: merged_subquery})
-            print "y", merged_query
-    return merged_query
-
-
 def transfer_where(parsed):
     query = {}
     # 一般第一个表达式之后才是and或or等操作符
     last_comparison = None
     operator = None
     logical_operators = {
-        'AND': '$and',
+        #'AND': '$and',  # and不需要, 简化嵌套
         'OR': '$or',
     }
     # 跳过第一个where关键字
@@ -243,13 +250,13 @@ def transfer_where(parsed):
             if not operator:
                 # 初始化
                 operator = logical_operators.get(i.value.upper(), None)
+                last_comparison = copy.deepcopy(query)
+                query.clear()
                 query[operator] = [last_comparison]
             else:
                 new_operator = logical_operators.get(i.value.upper(), None)
-                if operator:
-                    last_comparison = {operator: query.pop(operator)}
-                else:
-                    last_comparison = copy.deepcopy(query)
+                last_comparison = {operator: query.pop(operator)}
+                # 更新operator
                 operator = new_operator
                 query[operator] = [last_comparison]
 
@@ -266,12 +273,21 @@ def transfer_where(parsed):
                 query[operator].append(in_operation)
             else:
                 query.update(in_operation)
+            last_comparison = in_operation
         elif i.ttype is tokens.Keyword and i.value.upper() == 'BETWEEN':
             between_operation = transfer_between_operation(parsed, parsed.token_index(i))
             if operator:
                 query[operator].append(between_operation)
             else:
                 query.update(between_operation)
+            last_comparison = between_operation
+        elif i.ttype is tokens.Keyword and i.value.upper() == 'LIKE':
+            like_operation = transfer_like_operation(parsed, parsed.token_index(i))
+            if operator:
+                query[operator].append(like_operation)
+            else:
+                query.update(like_operation)
+            last_comparison = like_operation
     return query
 
 
@@ -284,6 +300,7 @@ def transfer_sql(sql):
     fields = {'_id': 0}
     fields_wildcard = False
 
+    # 不能重复处理token
     for item in sqlparse.parse(sql):
         from_seen = False
         select_seen = False
@@ -348,12 +365,14 @@ if __name__ == '__main__':
     # sql = """
     # select uid, c, d from bar where (a < 1 and a > 1 or b < 1) and log_date between Date("2014-11-19") and $yesterday
     # """
-    # print sqlparse.parse(sql)[0].tokens
     # print transfer_sql(sql)
 
     import pymongo
     mongo = pymongo.MongoClient()
-    sql = "select author from cartoons where title = 'Calvin and Hobbes'"
+    sql = """
+    select author, title from cartoons where title like 'Calvin%' or author = 'Bill Watterson';
+    """
+    t = sqlparse.parse(sql)[0]
     db, query, fields = transfer_sql(sql)
     print db, query, fields
     comedy = mongo.comedy
