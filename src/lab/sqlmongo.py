@@ -4,13 +4,12 @@
 
 __author__ = 'icejoywoo'
 
+import copy
+import datetime
+import itertools
 import sqlparse
 import sqlparse.sql
 from sqlparse import tokens
-
-import itertools
-
-import datetime
 
 
 def sql_date(date_str):
@@ -247,8 +246,10 @@ def transfer_where(parsed):
                 query[operator] = [last_comparison]
             else:
                 new_operator = logical_operators.get(i.value.upper(), None)
-                last_query = query.pop(operator)
-                last_comparison = {operator: last_query}
+                if operator:
+                    last_comparison = {operator: query.pop(operator)}
+                else:
+                    last_comparison = copy.deepcopy(query)
                 operator = new_operator
                 query[operator] = [last_comparison]
 
@@ -256,13 +257,21 @@ def transfer_where(parsed):
             comparison = transfer_comparison(parsed, i)
             if operator:
                 query[operator].append(comparison)
+            else:
+                query.update(comparison)
             last_comparison = comparison
         elif i.ttype is tokens.Keyword and i.value.upper() == 'IN':
+            in_operation = transfer_in_operation(parsed, parsed.token_index(i))
             if operator:
-                query[operator].append(transfer_in_operation(parsed, parsed.token_index(i)))
+                query[operator].append(in_operation)
+            else:
+                query.update(in_operation)
         elif i.ttype is tokens.Keyword and i.value.upper() == 'BETWEEN':
+            between_operation = transfer_between_operation(parsed, parsed.token_index(i))
             if operator:
-                query[operator].append(transfer_between_operation(parsed, parsed.token_index(i)))
+                query[operator].append(between_operation)
+            else:
+                query.update(between_operation)
     return query
 
 
@@ -271,7 +280,8 @@ def transfer_sql(sql):
     sql = sql.strip()
     dbs = []
     query = {}
-    fields = {}
+    # 默认不带_id
+    fields = {'_id': 0}
     fields_wildcard = False
 
     for item in sqlparse.parse(sql):
@@ -320,20 +330,32 @@ def transfer_sql(sql):
                         fields[t.value] = 1
     if len(dbs) != 1:
         raise Exception('Only support from one db.')
+    if fields_wildcard:
+        fields = None
     return dbs[0], query, fields
 
 
 if __name__ == '__main__':
 
-    sql = """
-    select * from foo where a = 1 and (b != 'xxx' or
-        uid in (select uid from bar where _ = ISODate("2014-11-19")))
-    """
+    # sql = """
+    # select * from foo where a = 1 and (b != 'xxx' or
+    #     uid in (select uid from bar where _ = ISODate("2014-11-19")))
+    # """
+    #
+    # # sql = """select * from foo where a = 1 and b != "xxx" or uid not in ("1", "2") and c in (3, 4)"""
+    # print transfer_sql(sql)
+    #
+    # sql = """
+    # select uid, c, d from bar where (a < 1 and a > 1 or b < 1) and log_date between Date("2014-11-19") and $yesterday
+    # """
+    # print sqlparse.parse(sql)[0].tokens
+    # print transfer_sql(sql)
 
-    # sql = """select * from foo where a = 1 and b != "xxx" or uid not in ("1", "2") and c in (3, 4)"""
-    print transfer_sql(sql)
-
-    sql = """ select uid, c, d from bar where (a < 1 and a > 1 or b < 1) and log_date between Date("2014-11-19") and $yesterday """
-    print sqlparse.parse(sql)[0].tokens
-    print transfer_sql(sql)
-
+    import pymongo
+    mongo = pymongo.MongoClient()
+    sql = "select author from cartoons where title = 'Calvin and Hobbes'"
+    db, query, fields = transfer_sql(sql)
+    print db, query, fields
+    comedy = mongo.comedy
+    for i in comedy[db].find(query, fields):
+        print i
