@@ -14,20 +14,25 @@ from sqlparse import tokens
 def sql_date(date_str):
     return datetime.datetime.strptime(date_str, "%Y-%m-%d")
 
-yesterday = datetime.datetime.combine(datetime.datetime.now(), datetime.time()) - datetime.timedelta(days=1)
 
-built_in_var_and_funcs = {
+built_in_funcs = {
     'Date': sql_date,
     'ISODate': sql_date,
+
+}
+
+yesterday = datetime.datetime.combine(datetime.datetime.now(), datetime.time()) - datetime.timedelta(days=1)
+built_in_var = {
     '$yesterday': yesterday,
 }
 
 
 def sql_eval(str_to_be_evaled):
     str_to_be_evaled = str_to_be_evaled.strip()
+    # $开始的是变量
     if str_to_be_evaled.startswith('$'):
-        return built_in_var_and_funcs[str_to_be_evaled]
-    return eval(str_to_be_evaled, built_in_var_and_funcs)
+        return built_in_var[str_to_be_evaled]
+    return eval(str_to_be_evaled, built_in_funcs)
 
 
 def get_token(parsed, index, direction):
@@ -231,7 +236,7 @@ def transfer_where(parsed):
     last_comparison = None
     operator = None
     logical_operators = {
-        #'AND': '$and',  # and不需要, 简化嵌套
+        'AND': '$and',  # and不需要, 简化嵌套
         'OR': '$or',
     }
     # 跳过第一个where关键字
@@ -370,7 +375,7 @@ if __name__ == '__main__':
     import pymongo
     mongo = pymongo.MongoClient()
     sql = """
-    select author, title from cartoons where title like 'Calvin%' or author = 'Bill Watterson';
+    select _id, author, title from cartoons where title like 'Calvin%' and author = 'Bill Watterson';
     """
     t = sqlparse.parse(sql)[0]
     db, query, fields = transfer_sql(sql)
