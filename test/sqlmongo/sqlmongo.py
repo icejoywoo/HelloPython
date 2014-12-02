@@ -6,6 +6,7 @@ __author__ = 'icejoywoo'
 
 import copy
 import datetime
+
 import sqlparse
 import sqlparse.sql
 from sqlparse import tokens
@@ -260,10 +261,11 @@ def transfer_where(parsed):
                 query[operator] = [last_comparison]
             else:
                 new_operator = logical_operators.get(i.value.upper(), None)
-                last_comparison = {operator: query.pop(operator)}
-                # 更新operator
-                operator = new_operator
-                query[operator] = [last_comparison]
+                if operator != new_operator:
+                    last_comparison = {operator: query.pop(operator)}
+                    # 更新operator
+                    operator = new_operator
+                    query[operator] = [last_comparison]
 
         elif is_comparison(i):
             comparison = transfer_comparison(parsed, i)
@@ -372,14 +374,14 @@ if __name__ == '__main__':
     # """
     # print transfer_sql(sql)
 
-    import pymongo
-    mongo = pymongo.MongoClient()
     sql = """
     select _id, author, title from cartoons where title like 'Calvin%' and author = 'Bill Watterson';
     """
     t = sqlparse.parse(sql)[0]
     db, query, fields = transfer_sql(sql)
     print db, query, fields
+    import pymongo
+    mongo = pymongo.MongoClient()
     comedy = mongo.comedy
     for i in comedy[db].find(query, fields):
         print i
