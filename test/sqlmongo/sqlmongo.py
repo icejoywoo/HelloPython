@@ -18,7 +18,6 @@ def sql_date(date_str):
 built_in_funcs = {
     'Date': sql_date,
     'ISODate': sql_date,
-
 }
 
 yesterday = datetime.datetime.combine(datetime.datetime.now(), datetime.time()) - datetime.timedelta(days=1)
@@ -181,6 +180,27 @@ def transfer_like_operation(parsed, idx):
         raise Exception("Not a like keyword.")
 
 
+def transfer_exist_operation(parsed, idx):
+    """ is null 表示$exists: false
+    is not null 表示$exists: true
+    """
+    is_existed = False
+    is_token = parsed.tokens[idx]
+    field_token = parsed.token_prev(idx)
+
+    next_token = parsed.token_next(idx)
+    if next_token.ttype is tokens.Keyword and next_token.value.upper() == 'NOT':
+        is_existed = True
+        current_next_token_idx = parsed.token_index(next_token)
+        next_token = parsed.token_next(current_next_token_idx)
+
+    if next_token.ttype is tokens.Keyword and next_token.value.upper() == 'NULL':
+        print next_token
+
+    field_name = field_token.value
+    return {field_name: {'$exists': is_existed}}
+
+
 def transfer_comparison(parent, parsed):
     """ 是一个token表示的
     @param parsed:
@@ -293,6 +313,13 @@ def transfer_where(parsed):
             else:
                 query.update(like_operation)
             last_comparison = like_operation
+        elif i.ttype is tokens.Keyword and i.value.upper() == 'IS':
+            exist_operation = transfer_exist_operation(parsed, parsed.token_index(i))
+            if operator:
+                query[operator].append(exist_operation)
+            else:
+                query.update(exist_operation)
+            last_comparison = exist_operation
     return query
 
 
@@ -375,7 +402,7 @@ if __name__ == '__main__':
     import pymongo
     mongo = pymongo.MongoClient()
     sql = """
-    select _id, author, title from cartoons where title like 'Calvin%' and author = 'Bill Watterson';
+    select _id, author, title from cartoons where title like 'Calvin%' and author = 'Bill Watterson' and x is null;
     """
     t = sqlparse.parse(sql)[0]
     db, query, fields = transfer_sql(sql)
