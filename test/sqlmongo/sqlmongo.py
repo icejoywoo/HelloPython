@@ -6,10 +6,18 @@ __author__ = 'icejoywoo'
 
 import copy
 import datetime
+import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
 import sqlparse
 import sqlparse.sql
 from sqlparse import tokens
+
+import pymongo
+mongo = pymongo.MongoClient()
+test = mongo.comedy
 
 
 def sql_date(date_str):
@@ -120,7 +128,7 @@ def transfer_in_operation(parsed, idx):
         first_token = get_token(right_token, 0, direction='forward')[0]
         if first_token.ttype is tokens.DML and first_token.value.upper() == 'SELECT':
             # 去除两边的括号
-            right_value = transfer_sql(right_token.value[1:-1])
+            right_value = get_inner_result_from_sql(right_token.value[1:-1])
     else:
         right_value = sql_eval(right_token)
 
@@ -190,13 +198,12 @@ def transfer_exist_operation(parsed, idx):
     field_token = parsed.token_prev(idx)
 
     next_token = parsed.token_next(idx)
-    if next_token.ttype is tokens.Keyword and next_token.value.upper() == 'NOT':
-        is_existed = True
-        current_next_token_idx = parsed.token_index(next_token)
-        next_token = parsed.token_next(current_next_token_idx)
 
-    if next_token.ttype is tokens.Keyword and next_token.value.upper() == 'NULL':
-        print next_token
+    if next_token.ttype is tokens.Keyword:
+        if next_token.value.upper() == 'NOT NULL':
+            is_existed = True
+        elif next_token.value.upper() == 'NULL':
+            is_existed = False
 
     field_name = field_token.value
     return {field_name: {'$exists': is_existed}}
@@ -386,6 +393,26 @@ def transfer_sql(sql):
     return dbs[0], query, fields
 
 
+def get_inner_result_from_sql(sql):
+    """
+    只支持一个字段的嵌套查询
+    """
+    db, query, fields = transfer_sql(sql)
+    print db, query, fields
+    _fields = []
+    for k, v in fields.items():
+        if v == 1:
+            _fields.append(k)
+    field_name = _fields[0]
+    return [i[field_name] for i in test[db].find(query, fields) if field_name in i]
+
+
+def get_result_from_sql(sql):
+    db, query, fields = transfer_sql(sql)
+    print db, query, fields
+    return [i for i in test[db].find(query, fields)]
+
+
 if __name__ == '__main__':
 
     # sql = """
@@ -401,14 +428,18 @@ if __name__ == '__main__':
     # """
     # print transfer_sql(sql)
 
+    # sql = """
+    # select _id, author, title from cartoons where title like 'Calvin%' and author = 'Bill Watterson' and x.c is null;
+    # """
+    # t = sqlparse.parse(sql)[0]
+    # db, query, fields = transfer_sql(sql)
+    # print db, query, fields
+    # import pymongo
+    # mongo = pymongo.MongoClient()
+    # comedy = mongo.comedy
+    # for i in comedy[db].find(query, fields):
+    #     print i
     sql = """
-    select _id, author, title from cartoons where title like 'Calvin%' and author = 'Bill Watterson' and x is null;
+    select _id, author, title from cartoons where title like 'Calvin%' and author in (select author from cartoons);
     """
-    t = sqlparse.parse(sql)[0]
-    db, query, fields = transfer_sql(sql)
-    print db, query, fields
-    import pymongo
-    mongo = pymongo.MongoClient()
-    comedy = mongo.comedy
-    for i in comedy[db].find(query, fields):
-        print i
+    print get_result_from_sql(sql)
