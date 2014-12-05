@@ -16,8 +16,8 @@ import sqlparse.sql
 from sqlparse import tokens
 
 import pymongo
-mongo = pymongo.MongoClient()
-test = mongo.comedy
+mongo = pymongo.MongoClient("hk01-secure-udw019.hk01.baidu.com:8017")
+test = mongo.test
 
 
 def sql_date(date_str):
@@ -365,14 +365,17 @@ def transfer_sql(sql):
                     query = transfer_where(t)
 
                 if from_seen:
-                    if isinstance(t, sqlparse.sql.Identifier):
-                        db = t.get_name()
-                        dbs.append(db)
-                        from_seen = False
-                    if isinstance(t, sqlparse.sql.IdentifierList):
-                        for identifier in t.get_identifiers():
-                            dbs.append(identifier.get_name())
-                        from_seen = False
+                    db = str(t)
+                    dbs.append(db)
+                    from_seen = False
+                    # if isinstance(t, sqlparse.sql.Identifier):
+                    #     db = t.get_name()
+                    #     dbs.append(db)
+                    #
+                    # if isinstance(t, sqlparse.sql.IdentifierList):
+                    #     for identifier in t.get_identifiers():
+                    #         dbs.append(identifier.get_name())
+                    #     from_seen = False
 
                 if select_seen:
                     if fields_wildcard:
@@ -383,10 +386,11 @@ def transfer_sql(sql):
                         for identifier in t.get_identifiers():
                             if identifier.ttype is tokens.Wildcard:
                                 raise Exception('Wildcard(*) cannot be selected with other fields.')
-                            fields[identifier.get_name()] = 1
+                            fields[str(identifier)] = 1
                     else:
                         fields[t.value] = 1
     if len(dbs) != 1:
+        print dbs
         raise Exception('Only support from one db.')
     if fields_wildcard:
         fields = None
@@ -410,7 +414,8 @@ def get_inner_result_from_sql(sql):
 def get_result_from_sql(sql):
     db, query, fields = transfer_sql(sql)
     print db, query, fields
-    return [i for i in test[db].find(query, fields)]
+    for i in test[db].find(query, fields):
+        yield i
 
 
 if __name__ == '__main__':
@@ -440,6 +445,6 @@ if __name__ == '__main__':
     # for i in comedy[db].find(query, fields):
     #     print i
     sql = """
-    select _id, author, title from cartoons where title like 'Calvin%' and author in (select author from cartoons);
+    select stock_symbol, open from stocks;
     """
-    print get_result_from_sql(sql)
+    print get_result_from_sql(sql).next()
