@@ -340,6 +340,7 @@ def transfer_sql(sql):
     # 默认不带_id
     fields = {'_id': 0}
     fields_wildcard = False
+    limit_count = None
 
     # 不能重复处理token
     for item in sqlparse.parse(sql):
@@ -355,6 +356,8 @@ def transfer_sql(sql):
                 select_seen = False
             elif t.ttype is tokens.DML and t.value.upper() == 'SELECT':
                 select_seen = True
+            elif t.ttype is tokens.Keyword and t.value.upper() == 'LIMIT':
+                limit_count = int(str(item.token_next(item.token_index(t))))
             else:
                 if is_subselect(t):
                     #print t.tokens
@@ -394,27 +397,33 @@ def transfer_sql(sql):
         raise Exception('Only support from one db.')
     if fields_wildcard:
         fields = None
-    return dbs[0], query, fields
+    return dbs[0], query, fields, limit_count
 
 
 def get_inner_result_from_sql(sql):
     """
     只支持一个字段的嵌套查询
     """
-    db, query, fields = transfer_sql(sql)
+    db, query, fields, limit_count = transfer_sql(sql)
     print db, query, fields
     _fields = []
     for k, v in fields.items():
         if v == 1:
             _fields.append(k)
     field_name = _fields[0]
-    return [i[field_name] for i in test[db].find(query, fields) if field_name in i]
+    cursor = test[db].find(query, fields)
+    if limit_count:
+        cursor = cursor.limit(limit_count)
+    return [i[field_name] for i in cursor if field_name in i]
 
 
 def get_result_from_sql(sql):
-    db, query, fields = transfer_sql(sql)
-    print db, query, fields
-    for i in test[db].find(query, fields):
+    db, query, fields, limit_count = transfer_sql(sql)
+    print db, query, fields, limit_count
+    cursor = test[db].find(query, fields)
+    if limit_count:
+        cursor = cursor.limit(limit_count)
+    for i in cursor:
         yield i
 
 
@@ -445,6 +454,7 @@ if __name__ == '__main__':
     # for i in comedy[db].find(query, fields):
     #     print i
     sql = """
-    select stock_symbol, open from stocks;
+    select stock_symbol, open from stocks limit 10;
     """
-    print get_result_from_sql(sql).next()
+    print sqlparse.parse(sql)[0].tokens
+    print list(get_result_from_sql(sql))
