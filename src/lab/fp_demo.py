@@ -68,9 +68,26 @@ def fp_currying(f, *args, **kwargs):
     return _f
 
 
-def t(a, b, c, d=1, f=2):
-    return a + b + c + d + f
+def t(a, b, c, d=1, e=2):
+    print a, b, c, d, e
+    return a + b + c + d + e
 
 fp_curried_t = fp_currying(t, 1, 2, d=3)
 
-print fp_curried_t(4, f=3)
+print fp_curried_t(4, e=3)
+
+
+def fp_compose(f, g):
+
+    def _wrapper(*args, **kwargs):
+        return f(g(*args, **kwargs))
+
+    return _wrapper
+
+
+a = lambda x: x + 1
+
+b = fp_compose(a, a)
+
+print b(10)
+
