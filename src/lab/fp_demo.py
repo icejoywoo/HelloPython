@@ -91,3 +91,16 @@ b = fp_compose(a, a)
 
 print b(10)
 
+
+def fp_forloop(f, l):
+    if l:
+        f(fp_hd(l))
+        fp_forloop(f, fp_tl(l))
+    else:
+        pass
+
+
+def echo(x):
+    print x,
+
+fp_forloop(echo, [1, 2, 3, 4, 5])
