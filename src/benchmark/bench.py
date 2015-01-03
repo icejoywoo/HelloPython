@@ -127,7 +127,7 @@ if __name__ == "__main__":
             with lock:
                 r.set("name %s" % count, "value %s" % count)
                 count += 1
-                #time.sleep(random.random()/100)
+                # time.sleep(random.random()/100)
 
     manager = Manager()
     manager.add_task(1, test, a=1, b=2)

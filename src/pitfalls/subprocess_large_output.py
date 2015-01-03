@@ -29,6 +29,7 @@ def run_command(cmd, bufsize=1024):
             break
     return "".join(stdout), "".join(stderr)
 
+
 if __name__ == "__main__":
     stdout, stderr = run_command("ls -R ../..")
     print stdout

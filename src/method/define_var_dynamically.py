@@ -9,7 +9,7 @@ import sys
 
 this_module = sys.modules[__name__]
 
-#this_module.__dict__["a"] = 10
+# this_module.__dict__["a"] = 10
 this_module.a = 10
 print dir(this_module)
 

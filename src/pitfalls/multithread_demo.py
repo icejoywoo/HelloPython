@@ -1,5 +1,5 @@
 #!/bin/env python
-#^_^ encoding: utf-8 ^_^
+# ^_^ encoding: utf-8 ^_^
 # @date: 14-3-24
 
 __author__ = 'wujiabin'
@@ -27,6 +27,7 @@ def test2(i):
     pool.close()
     pool.join()
     return results
+
 
 if __name__ == "__main__":
     i = range(10)

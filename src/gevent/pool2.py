@@ -2,8 +2,8 @@ __author__ = 'icejoywoo'
 
 from gevent.pool import Pool
 
-class SocketPool(object):
 
+class SocketPool(object):
     def __init__(self):
         self.pool = Pool(1000)
         self.pool.start()

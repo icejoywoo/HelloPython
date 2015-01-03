@@ -9,6 +9,7 @@ Illustrates the use of events
 
 evt = Event()
 
+
 def setter():
     '''After 3 seconds, wake all threads waiting on the value of evt'''
     print('A: Hey wait for me, I have to do something')
@@ -16,11 +17,13 @@ def setter():
     print("Ok, I'm done")
     evt.set()
 
+
 def waiter():
     '''After 3 seconds the get call will unblock'''
     print("I'll wait for you")
     evt.wait()  # blocking
     print("It's about time")
+
 
 def main():
     gevent.joinall([
@@ -32,4 +35,6 @@ def main():
         gevent.spawn(waiter)
     ])
 
-if __name__ == '__main__': main()
+
+if __name__ == '__main__':
+    main()

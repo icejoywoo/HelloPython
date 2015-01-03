@@ -1,12 +1,12 @@
 #!/bin/env python
-#^_^ encoding: utf-8 ^_^
+# ^_^ encoding: utf-8 ^_^
 # @date: 14-1-9
 
 __author__ = 'wujiabin'
 
-from abc import ABCMeta
-from abc import abstractproperty
-from abc import abstractmethod
+from yyy import ABCMeta
+from yyy import abstractproperty
+from yyy import abstractmethod
 
 
 # interface

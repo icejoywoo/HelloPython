@@ -1,5 +1,5 @@
 #!/bin/env python
-#^_^ encoding: utf-8 ^_^
+# ^_^ encoding: utf-8 ^_^
 # @date: 14-1-8
 
 __author__ = 'wujiabin'
@@ -15,7 +15,8 @@ class Timer(object):
         self.start = time.time()
 
     def __exit__(self, exception_type, exception_val, trace):
-        print "elapsed:", time.time() - self.start
+        self.elapsed = time.time() - self.start
+        print "elapsed:", self.elapsed
 
 
 if __name__ == "__main__":

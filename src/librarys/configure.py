@@ -15,7 +15,7 @@ def _parse_from_generator(gen):
         if len(line) == 0 or line[0] == '#':
             continue
         if re_groups.match(line) is not None:
-            #remove comments
+            # remove comments
             line = line.split('#', 1)[0].strip()
             line = line.strip('[]')
             groups = line.split('.')
@@ -128,7 +128,9 @@ def dump_file(conf, filename):
 def dump(conf):
     return _dump(None, conf, -1)
 
+
 if __name__ == '__main__':
     from pprint import pprint
     import sys
+
     pprint(parse_file(sys.argv[1]))

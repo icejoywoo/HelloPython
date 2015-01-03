@@ -101,4 +101,4 @@ with case():
 
     for i in prime(100):
         print i
-        #time.sleep(0.1)
+        # time.sleep(0.1)

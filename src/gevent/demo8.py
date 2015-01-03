@@ -2,16 +2,19 @@ __author__ = 'icejoywoo'
 
 import gevent
 
+
 def win():
     return 'You win!'
+
 
 def fail():
     raise Exception('You fail at failing.')
 
+
 winner = gevent.spawn(win)
 loser = gevent.spawn(fail)
 
-print(winner.started) # True
+print(winner.started)  # True
 print(loser.started)  # True
 
 # Exceptions raised in the Greenlet, stay inside the Greenlet.
@@ -20,13 +23,13 @@ try:
 except Exception as e:
     print('This will never be reached')
 
-print(winner.value) # 'You win!'
+print(winner.value)  # 'You win!'
 print(loser.value)  # None
 
-print(winner.ready()) # True
+print(winner.ready())  # True
 print(loser.ready())  # True
 
-print(winner.successful()) # True
+print(winner.successful())  # True
 print(loser.successful())  # False
 
 # The exception raised in fail, will not propogate outside the

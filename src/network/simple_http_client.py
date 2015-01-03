@@ -1,5 +1,5 @@
 #!/bin/env python
-#^_^ encoding: utf-8 ^_^
+# ^_^ encoding: utf-8 ^_^
 # @date: 14-7-2
 
 __author__ = 'wujiabin'
@@ -10,8 +10,8 @@ import socket
 from cStringIO import StringIO
 import urlparse
 
-class HttpClient(asyncore.dispatcher):
 
+class HttpClient(asyncore.dispatcher):
     def __init__(self, url):
         self.url = url
         self.logger = logging.getLogger(self.url)
@@ -51,15 +51,15 @@ class HttpClient(asyncore.dispatcher):
         self.logger.debug('handle_read() -> %d bytes', len(data))
         self.read_buffer.write(data)
 
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,
-                        format='%(name)s: %(message)s',
-                        )
+                        format='%(name)s: %(message)s')
 
     clients = [
         HttpClient('http://www.python.org/'),
         HttpClient('http://www.doughellmann.com/PyMOTW/contents.html'),
-        ]
+    ]
 
     logging.debug('LOOP STARTING')
 

@@ -5,9 +5,11 @@ from gevent.local import local
 
 stash = local()
 
+
 def f1():
     stash.x = 1
     print(stash.x)
+
 
 def f2():
     stash.y = 2
@@ -17,6 +19,7 @@ def f2():
         stash.x
     except AttributeError:
         print("x is not local to f2")
+
 
 g1 = gevent.spawn(f1)
 g2 = gevent.spawn(f2)
