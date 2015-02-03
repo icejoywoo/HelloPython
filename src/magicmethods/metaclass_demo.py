@@ -6,6 +6,7 @@ __author__ = 'wujiabin'
 
 
 class SubclassTracker(type):
+
     def __init__(cls, name, bases, attrs):
         try:
             if TrackedClass not in bases:
@@ -21,7 +22,6 @@ class TrackedClass(object):
 
     def run(self):
         for i in self.__class__._registry:
-            print i
             i.run()
 
 
