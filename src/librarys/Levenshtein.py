@@ -5,7 +5,7 @@
 __author__ = 'wujiabin'
 
 
-#http://www.cnblogs.com/ymind/archive/2012/03/27/fast-memory-efficient-Levenshtein-algorithm.html
+# http://www.cnblogs.com/ymind/archive/2012/03/27/fast-memory-efficient-Levenshtein-algorithm.html
 def strcmp(s, t):
     if len(s) > len(t):
         s, t = t, s
