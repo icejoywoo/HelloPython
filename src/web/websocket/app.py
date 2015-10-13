@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
 # @date: 2015/7/21
-
-__author__ = 'wujiabin'
+# @author: icejoywoo
 
 import os
 import sys

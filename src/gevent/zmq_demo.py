@@ -1,4 +1,6 @@
-__author__ = 'icejoywoo'
+#!/bin/env python
+# encoding: utf-8
+# @author: icejoywoo
 
 # Note: Remember to ``pip install pyzmq gevent_zeromq``
 import gevent

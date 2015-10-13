@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-2-19
-
-__author__ = 'icejoywoo'
 # http://my.oschina.net/zenglingfan/blog/177586
 
 from math import *

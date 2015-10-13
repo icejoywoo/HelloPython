@@ -1,12 +1,14 @@
-__author__ = 'icejoywoo'
+#!/bin/env python
+# encoding: utf-8
+# @author: icejoywoo
 
 import gevent.monkey
-
-gevent.monkey.patch_socket()
-
 import gevent
 import urllib2
 import json
+
+# 可能需要放在最前面的
+gevent.monkey.patch_socket()
 
 
 def fetch(pid):

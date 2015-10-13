@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 2014/11/28
-
-__author__ = 'wujiabin'
 
 import sqlparse
 from sqlparse.sql import IdentifierList, Identifier

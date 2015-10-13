@@ -1,13 +1,13 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-1-7
-
-__author__ = 'icejoywoo'
 
 
 class AccessCounter(object):
-    '''A class that contains a value and implements an access counter.
-    The counter increments each time the value is changed.'''
+    """ A class that contains a value and implements an access counter.
+        The counter increments each time the value is changed.
+    """
 
     def __init__(self, val):
         super(AccessCounter, self).__setattr__('counter', 0)

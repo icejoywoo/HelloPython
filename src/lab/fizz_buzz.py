@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-2-14
-
-__author__ = 'wujiabin'
 
 # 写一个程序，打印数字1到100，3的倍数打印“Fizz”来替换这个数，5的倍数打印“Buzz”，
 # 对于既是3的倍数又是5的倍数的数字打印“FizzBuzz”。

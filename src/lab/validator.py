@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+# @author: icejoywoo
 
 """
 @summary: 验证器
@@ -143,8 +144,8 @@ def _toStardardCondition(condition):
             return _toStardardCondition(cls)
 
         if cls in (str, unicode) and condition[0] == condition[-1] == '/':
-            return lambda x: (isinstance(x, cls)
-                              and re.match(condition[1:-1], x) is not None)
+            return lambda x: (isinstance(x, cls) and
+                              re.match(condition[1:-1], x) is not None)
 
         return lambda x: isinstance(x, cls) and eval(condition)
 

@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-1-9
-
-__author__ = 'wujiabin'
 
 from yyy import ABCMeta
 from yyy import abstractproperty

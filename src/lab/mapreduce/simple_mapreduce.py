@@ -1,10 +1,10 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 2014/8/18
 """
 http://pymotw.com/2/multiprocessing/mapreduce.html
 """
-__author__ = 'wujiabin'
 
 import collections
 import itertools

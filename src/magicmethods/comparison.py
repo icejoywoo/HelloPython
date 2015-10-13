@@ -1,12 +1,12 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-1-7
-
-__author__ = 'icejoywoo'
 
 
 class Word(str):
-    '''Class for words, defining comparison based on word length.'''
+    """ Class for words, defining comparison based on word length.
+    """
 
     def __new__(cls, word):
         # Note that we have to use __new__. This is because str is an immutable

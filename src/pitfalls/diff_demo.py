@@ -3,6 +3,10 @@
 # @author: icejoywoo
 # @date: 14-3-24
 
+from difflib import Differ, SequenceMatcher
+from pprint import pprint
+
+
 text1 = '''  1. Beautiful is better than ugly.
   2. Explicit is better than implicit.
   3. Simple is better than complex.
@@ -15,8 +19,6 @@ text2 = '''  1. Beautiful is better than ugly.
   5. Flat is better than nested.
 '''.splitlines(True)
 
-from difflib import Differ, SequenceMatcher
-from pprint import pprint
 
 d = Differ()
 result = d.compare(text1, text2)

@@ -1,8 +1,7 @@
 #!/bin/env python
 # encoding: utf-8
+# @author: icejoywoo
 # @date: 15-1-3
-
-__author__ = 'icejoywoo'
 
 
 def fp_hd(l):

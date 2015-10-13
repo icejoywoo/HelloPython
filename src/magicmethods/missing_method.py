@@ -1,13 +1,15 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-1-14
-
-__author__ = 'icejoywoo'
 
 """
 http://stackoverflow.com/questions/6704151/python-equivalent-of-rubys-method-missing
 http://stackoverflow.com/questions/6954116/rubys-method-missing-in-python
 """
+
+import unittest
+from functools import partial
 
 
 class MyRubylikeThing(object):
@@ -22,9 +24,6 @@ class MyRubylikeThing(object):
 
 r = MyRubylikeThing()
 r.hello("there", "world", also="bye")
-
-import unittest
-from functools import partial
 
 
 class MethodMissing:
@@ -58,7 +57,8 @@ class Item(object):
 
 
 class EmptyWrapper(object, MethodMissing):
-    '''not implementing a missing_method'''
+    """ not implementing a missing_method
+    """
     pass
 
 

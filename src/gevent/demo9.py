@@ -1,4 +1,6 @@
-__author__ = 'icejoywoo'
+#!/bin/env python
+# encoding: utf-8
+# @author: icejoywoo
 
 import signal
 

@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 2014/8/18
-
-__author__ = 'wujiabin'
 
 # based on Recipe 466302: Sorting big files the Python 2.4 way
 # by Nicolas Lehuen

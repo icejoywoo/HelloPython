@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 13-12-24
-
-__author__ = 'wujiabin'
 
 # parse to a dict
 # dict([(k1, v1), (k2, v2)...])

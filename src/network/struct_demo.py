@@ -6,6 +6,11 @@
 # http://pymotw.com/2/struct/
 # http://docs.python.org/2/library/struct.html
 
+from array import array
+from ctypes import create_string_buffer
+import struct
+
+
 s = 'Hello world'
 t = buffer(s, 6, 5)  # 原型 buffer(object[, offset[, size]])
 s = bytearray(100)  # 一个大小100的字节数组, 每个元素都是0
@@ -14,12 +19,10 @@ s[0] = 1
 print t, repr(t), dir(t)
 # print s, repr(s), dir(s)
 
-from array import array
 
 a = array('B', [0x7C, 0xF8, 0x65, 0x17, 0x98, 0x7F, 0x1B, 0x3E])
 print a, repr(a)
 
-import struct
 
 data = struct.pack("<ii", 90, 20)
 print repr(data), len(data)
@@ -29,7 +32,6 @@ print a1, a2
 
 print struct.calcsize("<iihl")  # 2*4+2+4=14
 
-from ctypes import create_string_buffer
 
 buf = create_string_buffer(12)
 print repr(buf.raw)

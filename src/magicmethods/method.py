@@ -1,12 +1,11 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-1-8
-
-__author__ = 'icejoywoo'
 
 
 # refer method/closure.py
-class context(object):
+class Context(object):
     def __init__(self):
         self.data = {}
 
@@ -19,7 +18,7 @@ class context(object):
 
 
 if __name__ == "__main__":
-    c = context()
+    c = Context()
     print c("test")
     c("test", "value")
     print c("test")

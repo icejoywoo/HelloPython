@@ -1,8 +1,9 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-1-7
 
-__author__ = 'icejoywoo'
+import os
 
 
 # __new__ 在__init__之前调用, 并且创建对象
@@ -32,11 +33,9 @@ class MySingleton(Singleton):
         print "__init__"
 
 
-import os
-
-
 class FileObject(object):
-    '''Wrapper for file objects to make sure the file gets closed on deletion.'''
+    """ Wrapper for file objects to make sure the file gets closed on deletion.
+    """
 
     def __init__(self, filepath=os.path.dirname(__file__), filename=os.path.basename(__file__)):
         print self.__class__.__name__, "__init__"

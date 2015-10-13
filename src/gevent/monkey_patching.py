@@ -1,16 +1,18 @@
-__author__ = 'icejoywoo'
+#!/bin/env python
+# encoding: utf-8
+# @author: icejoywoo
 
 import socket
+from gevent import monkey
+import select
 
 print(socket.socket)
 
 print("After monkey patch")
-from gevent import monkey
 
 monkey.patch_socket()
 print(socket.socket)
 
-import select
 
 print(select.select)
 monkey.patch_select()
