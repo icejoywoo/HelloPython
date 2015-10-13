@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-3-25
-
-__author__ = 'wujiabin'
 
 import datetime
 import subprocess
@@ -35,3 +34,4 @@ def timeout_command(command, timeout):
     except OSError:
         pass
     return out
+
