@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 12-11-15
-
-__author__ = 'icejoywoo'
 
 import web
 

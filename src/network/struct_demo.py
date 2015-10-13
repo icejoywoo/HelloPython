@@ -1,8 +1,8 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-2-17
 
-__author__ = 'icejoywoo'
 # http://pymotw.com/2/struct/
 # http://docs.python.org/2/library/struct.html
 

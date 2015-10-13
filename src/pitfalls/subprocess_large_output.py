@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-3-25
-
-__author__ = 'icejoywoo'
 
 # http://stackoverflow.com/questions/5911362/pipe-large-amount-of-data-to-stdin-while-using-subprocess-popen
 import subprocess

@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: wujiabin
 # @date: 14-1-21
-
-__author__ = 'icejoywoo'
 
 from flask import render_template
 
