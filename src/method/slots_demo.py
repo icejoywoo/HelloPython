@@ -1,10 +1,10 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 13-12-25
 
 # refer: http://stackoverflow.com/questions/1816483/python-how-does-inheritance-of-slots-in-subclasses-actually-work
 
-__author__ = 'icejoywoo'
 import sys
 
 from guppy import hpy

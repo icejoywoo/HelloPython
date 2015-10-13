@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 13-12-25
-
-__author__ = 'icejoywoo'
 
 # define a var using this module
 import sys

@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-2-12
-
-__author__ = 'icejoywoo'
 
 """
 官网文档的解释:

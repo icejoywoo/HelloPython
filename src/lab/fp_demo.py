@@ -30,7 +30,7 @@ print fp_map(lambda x: x + 1, [1, 2, 3])
 
 def fp_fold(f, acc, l):
     if l:
-        return f(acc, fp_hd(l)) + fp_fold(f, acc,  fp_tl(l))
+        return f(acc, fp_hd(l)) + fp_fold(f, acc, fp_tl(l))
     else:
         return acc
 
@@ -39,7 +39,7 @@ print fp_fold(lambda acc, x: acc + x, 0, [1, 2, 3])
 
 def fp_foldr(f, acc, l):
     if l:
-        return f(acc, fp_hd(l)) + fp_fold(f, acc,  fp_tl(l))
+        return f(acc, fp_hd(l)) + fp_fold(f, acc, fp_tl(l))
     else:
         return acc
 

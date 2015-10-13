@@ -34,4 +34,3 @@ def timeout_command(command, timeout):
     except OSError:
         pass
     return out
-

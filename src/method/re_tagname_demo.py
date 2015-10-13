@@ -1,9 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-1-14
-
-__author__ = 'wujiabin'
-
 """
 【教程】详解Python正则表达式之： (?P<name>...) named group 带命名的组
 

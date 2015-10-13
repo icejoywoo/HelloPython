@@ -27,6 +27,7 @@ REMOTE_PORT = None
 REMOTE_MONITOR_URI = None
 UUID = None
 
+
 def get_mem_usage_percent():
     try:
         f = open('/proc/meminfo', 'r')
@@ -56,12 +57,14 @@ def get_mem_usage_percent():
 
 black_list = ('iso9660',)
 
+
 def usage_percent(use, total):
     try:
         ret = (float(use) / total) * 100
     except ZeroDivisionError:
         raise Exception("ERROR - zero division error")
     return ret
+
 
 def get_disk_partition():
     return_list = []
@@ -89,6 +92,7 @@ def get_disk_partition():
         return None
     return return_list
 
+
 def check_disk():
     try:
         return_dict = {}
@@ -103,6 +107,7 @@ def check_disk():
     return return_dict
 
 _CLOCK_TICKS = os.sysconf("SC_CLK_TCK")
+
 
 def get_cpu_time():
     need_sleep = False
@@ -160,6 +165,7 @@ def get_cpu_time():
     copyfile('/proc/stat', '/tmp/cpu_stat')
     return cpu_percentage
 
+
 def network_io_kbitps():
     """Return network I/O statistics for every network interface
     installed on the system as a dict of raw tuples.
@@ -197,6 +203,7 @@ def network_io_kbitps():
     retdict = merge_with(retdict2, retdict1)
     return retdict
 
+
 def disk_io_Kbps():
     iostat = Popen("iostat -d -k 1 2 | sed '/Device\|Linux\|^$/d' > /tmp/disk_io", shell=True, stdout=PIPE, stderr=PIPE)
     iostat_error = iostat.communicate()[1].strip()
@@ -225,14 +232,16 @@ def disk_io_Kbps():
     finally:
         f.close()
 
+
 def merge_with(d1, d2, fn=lambda x, y: tuple(map(operator.sub, x, y))):
-    res = d1.copy() # "= dict(d1)" for lists of tuples
-    for key, val in d2.iteritems(): # ".. in d2" for lists of tuples
+    res = d1.copy()  # "= dict(d1)" for lists of tuples
+    for key, val in d2.iteritems():  # ".. in d2" for lists of tuples
         try:
             res[key] = fn(res[key], val)
         except KeyError:
             res[key] = val
     return res
+
 
 def get_load():
     try:
@@ -246,6 +255,7 @@ def get_load():
         return None
     return lavg_1, lavg_5, lavg_15
 
+
 def get_tcp_status():
     check_cmd = "command -v ss"
     check_proc = Popen(check_cmd, shell=True, stdout=PIPE)
@@ -258,11 +268,13 @@ def get_tcp_status():
     tcp_status = tcp_proc.communicate()[0].rstrip('\n')
     return tcp_status
 
+
 def get_proc_number():
     cmd = "ps axu | wc -l | tail -n 1"
     proc_func = Popen(cmd, shell=True, stdout=PIPE)
     proc_number = proc_func.communicate()[0].rstrip('\n')
     return proc_number
+
 
 def all_index():
     return (
@@ -276,6 +288,7 @@ def all_index():
         get_tcp_status(),
         get_proc_number()
     )
+
 
 def collector():
     timestamp, cpu, mem, disk, disk_io, net, load, tcp_status, process_number = all_index()

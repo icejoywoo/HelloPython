@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-3-24
-
-__author__ = 'wujiabin'
 
 text1 = '''  1. Beautiful is better than ugly.
   2. Explicit is better than implicit.

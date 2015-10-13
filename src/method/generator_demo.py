@@ -1,8 +1,7 @@
 #!/bin/env python
 # ^_^ encoding: utf-8 ^_^
+# @author: icejoywoo
 # @date: 14-2-18
-
-__author__ = 'wujiabin'
 
 import time
 
